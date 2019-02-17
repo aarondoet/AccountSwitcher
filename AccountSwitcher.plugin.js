@@ -3,7 +3,7 @@
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "0.0.2";}
+	getVersion(){return "0.0.3";}
 	getDescription(){return "Switch between multiple accounts with AltLeft+1 up to AltLeft+9";}
 	
 	
@@ -41,6 +41,7 @@ class AccountSwitcher {
 	onLibLoaded(){
 		NeatoLib.Updates.check(this, "https://raw.githubusercontent.com/l0c4lh057/AccountSwitcher/master/AccountSwitcher.plugin.js");
 		this.AccountManager = NeatoLib.Modules.get(["loginToken"]);
+		this.UserInfoStore = NeatoLib.Modules.get(["getToken"]);
 		this.settings = NeatoLib.Settings.load(this, this.defaultSettings);
 		this.registerKeybinds();
 	}
@@ -67,8 +68,13 @@ class AccountSwitcher {
 				modifiers : ["AltLeft"]
 			};
 			NeatoLib.Keybinds.attachListener("accountswitcher-keybind-" + i, keybind, () => {
-				this.AccountManager.loginToken(this.settings["token" + i]);
-				location.reload();
+				let token = this.settings["token" + i];
+				if(token.length > 10){
+					this.AccountManager.loginToken(this.settings["token" + i]);
+					location.reload();
+				}else{
+					NeatoLib.showToast("Token " + i + " is not valid", "error");
+				}
 			});
 		}
 	}
@@ -83,6 +89,15 @@ class AccountSwitcher {
 					this.saveSettings();
 				}), this.getName());
 			}
+			NeatoLib.Settings.pushElement(NeatoLib.Settings.Elements.createButton("Copy token of current account", e => {
+				let tempInput = document.createElement("input");
+				document.body.appendChild(tempInput);
+				tempInput.setAttribute('value', this.UserInfoStore.getToken())
+				tempInput.select();
+				document.execCommand('copy');
+				document.body.removeChild(tempInput);
+				NeatoLib.showToast("Token copied", "success");
+			}), this.getName());
 		}, 0);
 
 		return this.pluginNameLabel(this.getName());
