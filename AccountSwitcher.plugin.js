@@ -3,8 +3,8 @@
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "0.0.3";}
-	getDescription(){return "Switch between multiple accounts with AltLeft+1 up to AltLeft+9";}
+	getVersion(){return "0.0.4";}
+	getDescription(){return "Switch between multiple accounts with AltLeft+1 up to AltLeft+0";}
 	
 	
 	get defaultSettings(){
@@ -17,7 +17,8 @@ class AccountSwitcher {
 			token6: "",
 			token7: "",
 			token8: "",
-			token9: ""
+			token9: "",
+			token10: ""
 		}
 	}
 	
@@ -56,15 +57,15 @@ class AccountSwitcher {
 	
 	
 	unregisterKeybinds() {
-		for(let i = 1; i < 10; i++){
+		for(let i = 1; i < 11; i++){
 			NeatoLib.Keybinds.detachListener("accountswitcher-keybind-" + i);
 		}
 	}
 
 	registerKeybinds() {
-		for(let i = 1; i < 10; i++){
+		for(let i = 1; i < 11; i++){
 			let keybind = {
-				primaryKey : "Digit" + i,
+				primaryKey : "Digit" + (i % 10),
 				modifiers : ["AltLeft"]
 			};
 			NeatoLib.Keybinds.attachListener("accountswitcher-keybind-" + i, keybind, () => {
@@ -83,7 +84,7 @@ class AccountSwitcher {
 	
 	getSettingsPanel() {
 		setTimeout(() => {
-			for(let i = 1; i < 10; i++){
+			for(let i = 1; i < 11; i++){
 				NeatoLib.Settings.pushElement(NeatoLib.Settings.Elements.createNewTextField("Token " + i, this.settings["token" + i], e => {
 					this.settings["token" + i] = e.target.value;
 					this.saveSettings();
