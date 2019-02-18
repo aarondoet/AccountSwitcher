@@ -3,21 +3,31 @@
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "0.0.4";}
+	getVersion(){return "0.0.5";}
 	getDescription(){return "Switch between multiple accounts with AltLeft+1 up to AltLeft+0";}
 	
 	
 	get defaultSettings(){
 		return {
+			name1: "",
 			token1: "",
+			name2: "",
 			token2: "",
+			name3: "",
 			token3: "",
+			name4: "",
 			token4: "",
+			name5: "",
 			token5: "",
+			name6: "",
 			token6: "",
+			name7: "",
 			token7: "",
+			name8: "",
 			token8: "",
+			name9: "",
 			token9: "",
+			name10: "",
 			token10: ""
 		}
 	}
@@ -85,7 +95,12 @@ class AccountSwitcher {
 	getSettingsPanel() {
 		setTimeout(() => {
 			for(let i = 1; i < 11; i++){
-				NeatoLib.Settings.pushElement(NeatoLib.Settings.Elements.createNewTextField("Token " + i, this.settings["token" + i], e => {
+				NeatoLib.Settings.pushElement(this.createTextField("Token " + i, this.settings["name" + i], this.settings["token" + i], "Account name (can be whatever you want)", "Account token", 
+				e => {
+					this.settings["name" + i] = e.target.value;
+					this.saveSettings();
+				},
+				e => {
 					this.settings["token" + i] = e.target.value;
 					this.saveSettings();
 				}), this.getName());
@@ -133,5 +148,26 @@ class AccountSwitcher {
 				}
 			</style>
 			<h style="color: white;font-size: 30px;font-weight: bold;">${name.replace(/([A-Z])/g, ' $1').trim()} by l0c4lh057</h>`;
+	}
+	
+	createTextField(label, value1, value2, placeholder1, placeholder2, callback1, callback2, options = {}) {
+		let element = document.createElement("div");
+		element.style.paddingTop = options.spacing || "20px";
+		element.insertAdjacentHTML("beforeend", `
+			<style>
+				.neato-text-field-p {
+					color: white;
+					font-size: 20px;
+					display: inline;
+				}
+			</style>
+			<div class="neato-text-field-p">${label}</div>
+			<div class="neato-text-field-p" style="opacity:0.5;font-size:17px;">${options.description || ""}</div>
+			<input value="${value1}" placeholder="${placeholder1}" type="${options.type || "text"}" style="${NeatoLib.Settings.Styles.textField}width:42%;margin-left:10px;">
+			<input value="${value2}" placeholder="${placeholder2}" type="${options.type || "text"}" style="${NeatoLib.Settings.Styles.textField}width:42%;">
+		`);
+		element.querySelectorAll("input")[0].addEventListener(options.callbackType || "focusout", e => callback1(e));
+		element.querySelectorAll("input")[1].addEventListener(options.callbackType || "focusout", e => callback2(e));
+		return element;
 	}
 }
