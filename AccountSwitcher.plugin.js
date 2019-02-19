@@ -1,9 +1,9 @@
-//META{"name":"AccountSwitcher","displayName":"AccountSwitcher","website":"https://twitter.com/l0c4lh057/","source":"https://github.com/l0c4lh057/GuildData/blob/master/GuildData.plugin.js"}*//
+//META{"name":"AccountSwitcher","displayName":"AccountSwitcher","website":"https://twitter.com/l0c4lh057/","source":"https://github.com/l0c4lh057/BetterDiscordStuff/blob/master/Plugins/AccountSwitcher/AccountSwitcher.plugin.js"}*//
 
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "0.0.5";}
+	getVersion(){return "0.0.6";}
 	getDescription(){return "Switch between multiple accounts with AltLeft+1 up to AltLeft+0";}
 	
 	
@@ -50,7 +50,7 @@ class AccountSwitcher {
 		else lib.addEventListener("load", libLoadedEvent);
 	}
 	onLibLoaded(){
-		NeatoLib.Updates.check(this, "https://raw.githubusercontent.com/l0c4lh057/AccountSwitcher/master/AccountSwitcher.plugin.js");
+		NeatoLib.Updates.check(this, "https://raw.githubusercontent.com/l0c4lh057/BetterDiscordStuff/master/Plugins/AccountSwitcher/AccountSwitcher.plugin.js");
 		this.AccountManager = NeatoLib.Modules.get(["loginToken"]);
 		this.UserInfoStore = NeatoLib.Modules.get(["getToken"]);
 		this.settings = NeatoLib.Settings.load(this, this.defaultSettings);
