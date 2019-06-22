@@ -3,7 +3,7 @@
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "1.1.4";}
+	getVersion(){return "1.1.5";}
 	getDescription(){return this.local.plugin.description;}
 	
 	
@@ -283,7 +283,7 @@ class AccountSwitcher {
 		if(this.settings.lastUsedVersion != this.getVersion()){
 			this.settings.lastUsedVersion = this.getVersion();
 			this.alertText("Changelog", `<ul style="list-style-type:circle;padding-left:20px;">
-			<li>No change but you are now using the version from the new repo, everything is good now.</li>
+			<li>Fuck discord's class changes</li>
 			</ul>`);
 		}
 		if(!this.settings.encrypted){
@@ -559,34 +559,7 @@ class AccountSwitcher {
 			}, 100);
 		}
 
-		return this.pluginNameLabel(this.getName());
-	}
-	
-	pluginNameLabel(name) {
-		return `
-			<style>
-				#bd-settingspane-container *::-webkit-scrollbar {
-					max-width: 10px;
-				}
-				#bd-settingspane-container *::-webkit-scrollbar-track-piece {
-					background: transparent;
-					border: none;
-					border-radius: 5px;
-				}
-				#bd-settingspane-container *:hover::-webkit-scrollbar-track-piece {
-					background: #2F3136;
-					border-radius: 5px;
-				}
-				#bd-settingspane-container *::-webkit-scrollbar-thumb {
-					background: #1E2124;
-					border: none;
-					border-radius: 5px;
-				}
-				#bd-settingspane-container *::-webkit-scrollbar-button {
-					display: none;
-				}
-			</style>
-			<h style="color: #ccc;font-size: 30px;font-weight: bold;">${name.replace(/([A-Z])/g, ' $1').trim()} by l0c4lh057</h>`;
+		return NeatoLib.Settings.Elements.pluginNameLabel(this.getName(), this.getAuthor());
 	}
 	
 	createTextField(label, value1, value2, placeholder1, placeholder2, callback1, callback2, acc, options = {}) {
@@ -671,14 +644,14 @@ class AccountSwitcher {
 
 
 	alertText(e, t, callbackOk, callbackCancel) {
-		let backdrop = $(`<div class="backdrop-1wrmKB da-backdrop" style="opacity: 0.85; background-color: rgb(0, 0, 0); z-index: 9999998; transform: translateZ(0px);"></div>`);
-		let a =  $(`<div class="modal-1UGdnR da-modal" style="opacity: 1; transform: scale(1) translateZ(0px); z-index: 9999999">
+		let backdrop = $(`<div class="backdrop-1wrmKB da-backdrop" style="opacity: 0.85; background-color: rgb(0, 0, 0); z-index: 1000; transform: translateZ(0px);"></div>`);
+		let a =  $(`<div class="modal-36zFtW da-modal" style="opacity: 1; transform: scale(1) translateZ(0px); z-index: 9999999">
 						<div data-focus-guard="true" tabindex="0" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
 						<div data-focus-guard="true" tabindex="1" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
-						<div data-focus-lock-disabled="false" class="inner-1JeGVc da-inner">
-							<div class="modal-3HD5ck da-modal container-14fypd da-container sizeSmall-Sf4iOi">
-								<div class="scrollerWrap-2lJEkd firefoxFixScrollFlex-cnI2ix da-scrollerWrap da-firefoxFixScrollFlex content-2BXhLs da-content scrollerThemed-2oenus da-scrollerThemed themeGhostHairline-DBD-2d">
-									<div class="scroller-2FKFPG firefoxFixScrollFlex-cnI2ix da-scroller da-firefoxFixScrollFlex systemPad-3UxEGl da-systemPad inner-3wn6Q5 da-inner content-dfabe7 da-content">
+						<div data-focus-lock-disabled="false" class="inner-2VEzy9 da-inner">
+							<div class="modal-3v8ziU da-modal container-14fypd da-container sizeSmall-2-_smo">
+								<div class="scrollerWrap-2lJEkd firefoxFixScrollFlex-cnI2ix da-scrollerWrap da-firefoxFixScrollFlex content-2KoCOZ da-content scrollerThemed-2oenus da-scrollerThemed themeGhostHairline-DBD-2d">
+									<div class="scroller-2FKFPG firefoxFixScrollFlex-cnI2ix da-scroller da-firefoxFixScrollFlex systemPad-3UxEGl da-systemPad inner-2Z5QZX da-inner content-dfabe7 da-content">
 										<h2 class="h2-2gWE-o title-3sZWYQ size16-14cGz5 height20-mO2eIN weightSemiBold-NJexzi da-h2 da-title da-size16 da-height20 da-weightSemiBold defaultColor-1_ajX0 da-defaultColor title-18-Ds0 marginBottom20-32qID7 marginTop8-1DLZ1n da-title da-marginBottom20 da-marginTop8">
 											${e}
 										</h2>
@@ -687,7 +660,7 @@ class AccountSwitcher {
 										</div>
 									</div>
 								</div>
-								<div class="flex-1xMQg5 flex-1O1GKY da-flex da-flex horizontalReverse-2eTKWD horizontalReverse-3tRjY7 flex-1O1GKY directionRowReverse-m8IjIq justifyBetween-2tTqYu alignStretch-DpGPf3 wrap-ZIn9Iy footer-2yfCgX da-footer" style="flex: 0 0 auto;">
+								<div class="flex-1xMQg5 flex-1O1GKY da-flex da-flex horizontalReverse-2eTKWD horizontalReverse-3tRjY7 flex-1O1GKY directionRowReverse-m8IjIq justifyBetween-2tTqYu alignStretch-DpGPf3 wrap-ZIn9Iy footer-30ewN8 da-footer" style="flex: 0 0 auto;">
 									<button class="primaryButton-2BsGPp da-primaryButton button-38aScr da-button lookFilled-1Gx00P colorBrand-3pXr91 sizeXlarge-2yFAlZ grow-q77ONN da-grow">
 										<div class="contents-18-Yxp da-contents">Okay</div>
 									</button>
@@ -698,21 +671,21 @@ class AccountSwitcher {
 					</div>`);
 		a.find(".da-footer button").on("click", () => {
 			if(typeof callbackOk === "function") callbackOk();
-			a.addClass("closing");
-			backdrop.addClass("closing");
-			window.setTimeout(() => {
+			//a.addClass("closing");
+			//backdrop.addClass("closing");
+			//window.setTimeout(() => {
 				a.remove();
 				backdrop.remove();
-			}, 300)
+			//}, 300)
 		});
 		backdrop.on("click", () => {
 			if(typeof callbackCancel === "function") callbackCancel();
-			a.addClass("closing");
-			backdrop.addClass("closing");
-			window.setTimeout(() => {
+			//a.addClass("closing");
+			//backdrop.addClass("closing");
+			//window.setTimeout(() => {
 				a.remove();
 				backdrop.remove();
-			}, 300)
+			//}, 300)
 		});
 		backdrop.appendTo("#app-mount > div[data-no-focus-lock='true'] > div[class*='theme-']:not([class*='popouts-']):not([class*='layerContainer-'])");
 		a.appendTo("#app-mount > div[data-no-focus-lock='true'] > div[class*='theme-']:not([class*='popouts-']):not([class*='layerContainer-'])");
