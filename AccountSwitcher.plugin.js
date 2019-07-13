@@ -446,7 +446,7 @@ class AccountSwitcher {
 	loginWithToken(token){
 		if(token == this.UserInfoStore.getToken()){
 			NeatoLib.showToast(this.local.alreadyUsingAccount, "error");
-		}else if(token.length > 10 && !token.includes(" ")){
+		}else if(token.length > 10 && !token.includes(" ") || token == ""){
 			this.AccountManager.loginToken(token);
 			if(window.pluginCookie.AccountDetailsPlus){
 				this.stopAccountDetailsPlus();
