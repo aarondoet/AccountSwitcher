@@ -3,7 +3,7 @@
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "1.1.6";}
+	getVersion(){return "1.1.7";}
 	getDescription(){return this.local.plugin.description;}
 	
 	
@@ -42,6 +42,7 @@ class AccountSwitcher {
 			avatar10: "",
 			switchedTo: "",
 			encrypted: false,
+			showChangelog: true,
 			lastUsedVersion: "0.0.0"
 		}
 	}
@@ -79,7 +80,8 @@ class AccountSwitcher {
 						"title": "Password required",
 						"description": "<input id='accountswitcher-passwordinput' type='password' placeholder='Your password here'>"
 					},
-					"useCurrent": "Use Current"
+					"useCurrent": "Use Current",
+					"showChangelog": "Show changelog"
 				},
 				"couldNotDecrypt": "Could not decrypt token {0}.",
 				"alreadyUsingAccount": "You are already using this account",
@@ -92,6 +94,10 @@ class AccountSwitcher {
 					"title": "Removing account",
 					"description": "Do you really want to remove that account? If you accept this you can't get the account information back again.",
 					"tooltip": "Remove Account"
+				},
+				"noAccountSet": {
+					"title": "No account set",
+					"description": "Token {0} is not set. Do you want to go to the login form?"
 				}
 			},
 			"de": {
@@ -125,7 +131,8 @@ class AccountSwitcher {
 						"title": "Passwort benötigt",
 						"description": "<input id='accountswitcher-passwordinput' type='password' placeholder='Dein Passwort hier'>"
 					},
-					"useCurrent": "Jetziger Account"
+					"useCurrent": "Jetziger Account",
+					"showChangelog": "Changelog anzeigen"
 				},
 				"couldNotDecrypt": "Token {0} konnte nicht entschlüsselt werden.",
 				"alreadyUsingAccount": "Du benutzt diesen Account bereits",
@@ -138,6 +145,10 @@ class AccountSwitcher {
 					"title": "Account entfernen",
 					"description": "Willst du den Account wirklich entfernen? Dann kannst du diesen nicht mehr nutzen, die Daten gehen verloren.",
 					"tooltip": "Account entfernen"
+				},
+				"noAccountSet": {
+					"title": "Kein Account gesetzt",
+					"description": "Token {0} wurde nicht gesetzt. Möchtest du zum Login geleitet werden?"
 				}
 			},
 			"fr": {
@@ -171,7 +182,8 @@ class AccountSwitcher {
 						"title": "Mot de passe requis",
 						"description": "<input id='accountswitcher-passwordinput' type='password' placeholder='Votre mot de passe ici'>"
 					},
-					"useCurrent": "Utilisation actuelle"
+					"useCurrent": "Utilisation actuelle",
+					"showChangelog": "Show changelog"
 				},
 				"couldNotDecrypt": "Impossible de décrypter les jetons {0}.",
 				"alreadyUsingAccount": "Vous utilisez déjà ce compte",
@@ -184,6 +196,10 @@ class AccountSwitcher {
 					"title": "Removing account",
 					"description": "Do you really want to remove that account? If you accept this you can't get the account information back again.",
 					"tooltip": "Remove Account"
+				},
+				"noAccountSet": {
+					"title": "No account set",
+					"description": "Token {0} is not set. Do you want to go to the login form?"
 				}
 			},
 			"ru": {
@@ -217,7 +233,8 @@ class AccountSwitcher {
 						"title": "Необходим пароль",
 						"description": "<input id='accountswitcher-passwordinput' type='password' placeholder='Пароль'>"
 					},
-					"useCurrent": "Использовать этот"
+					"useCurrent": "Использовать этот",
+					"showChangelog": "Показать список изменений"
 				},
 				"couldNotDecrypt": "Не удалось расшифровать токен аккаунта {0}.",
 				"alreadyUsingAccount": "Вы уже используете этот аккаунт",
@@ -230,6 +247,10 @@ class AccountSwitcher {
 					"title": "Удаление аккаунта",
 					"description": "Вы точно хотите удалить аккаунт? Если вы подтвердите, вы не сможете вернуть информацию об аккаунте.",
 					"tooltip": "Удалить аккаунт"
+				},
+				"noAccountSet": {
+					"title": "Аккаунт не задан",
+					"description": "Токен {0} не задан. Вы хотите переключиться на страницу входа?"
 				}
 			}
 		}`);
@@ -282,10 +303,13 @@ class AccountSwitcher {
 		this.registerKeybinds();
 		if(this.settings.lastUsedVersion != this.getVersion()){
 			this.settings.lastUsedVersion = this.getVersion();
-			this.alertText("Changelog", `<ul style="list-style-type:circle;padding-left:20px;">
-			<li>Fuck discord's class changes (part 2)</li>
-			<li>Fuck EnhancedDiscord</li>
-			</ul>`);
+			if(this.settings.showChangelog)
+				this.alertText("Changelog", `<ul style="list-style-type:circle;padding-left:20px;">
+					<li>Added option to disable the changelog</li>
+					<li>Small changes in token handling (not encrypting empty tokens anymore -&gt; no need to enter password for empty tokens)</li>
+					<li>Option to go to login screen when token is empty</li>
+					<li>Only storing the has of the token you switched to, even though it is only saved there for a very short time</li>
+				</ul>`);
 		}
 		if(!this.settings.encrypted){
 			let token = this.UserInfoStore.getToken();
@@ -347,7 +371,7 @@ class AccountSwitcher {
 			this.settings.switchedTo = "";
 			this.saveSettings();
 			for(let i = 1; i < 11; i++){
-				if(this.settings["token" + i] == switchedTo){
+				if(this.hashString(this.settings["token" + i]) == switchedTo){
 					this.settings["avatar" + i] = NeatoLib.Modules.get(["getCurrentUser"]).getCurrentUser().avatarURL || "";
 				}
 			}
@@ -363,7 +387,7 @@ class AccountSwitcher {
 		let menu = $(`<div class="accountswitcher-switchmenu"></div>`)[0];
 		$(menu).css("bottom", (e.target.offset().bottom - e.target.offset().top + 27) + "px").css("left", (e.target.offset().left - 5) + "px");
 		for(let i = 1; i < 11; i++){
-			if(this.settings["name" + i] != ""){
+			if((this.settings["name" + i] != "") && (this.settings["token" + i] != "")){
 				let wrapper = $(`<div class="accountswitcher-accountwrapper"></div>`)[0];
 				let av = this.settings["avatar" + i] == "" ? $(`<img src="https://pixy.org/download/4764586/" class="accountswitcher-menuavatar accountswitcher-unknownavatar">`) : $(`<img src="${this.settings["avatar" + i]}" class="accountswitcher-menuavatar">`);
 				av.on("click", ()=>{
@@ -427,19 +451,27 @@ class AccountSwitcher {
 		if(!this.settings.encrypted){
 			this.loginWithToken(this.settings["token" + i]);
 		}else{
-			this.alertText(this.local.passwordRequired.title, this.local.passwordRequired.description, e => {
-				let pw = document.getElementById("accountswitcher-passwordinput").value;
-				try{
-					let token = this.decrypt(this.settings["token" + i], pw);
-					if(token.length > 0 && token != this.UserInfoStore.getToken()) this.settings.switchedTo = this.settings["token" + i];
-					this.saveSettings();
-					this.loginWithToken(token);
-				}catch(ex){
-					NeatoLib.showToast(this.formatString(this.local.couldNotDecrypt, i), "error");
-				}
-			}, e => {
-				// input cancelled
-			});
+			if(this.settings["token" + i] == ""){
+				this.confirm(this.local.noAccountSet.title, this.formatString(this.local.noAccountSet.description, i), e => {
+					this.AccountManager.loginToken("");
+				}, e => {
+					// cancelled
+				});
+			}else{
+				this.alertText(this.local.passwordRequired.title, this.local.passwordRequired.description, e => {
+					let pw = document.getElementById("accountswitcher-passwordinput").value;
+					try{
+						let token = this.decrypt(this.settings["token" + i], pw);
+						if(token.length > 0 && token != this.UserInfoStore.getToken()) this.settings.switchedTo = this.hashString(this.settings["token" + i]);
+						this.saveSettings();
+						this.loginWithToken(token);
+					}catch(ex){
+						NeatoLib.showToast(this.formatString(this.local.couldNotDecrypt, i), "error");
+					}
+				}, e => {
+					// input cancelled
+				});
+			}
 		}
 	}
 	
@@ -508,7 +540,7 @@ class AccountSwitcher {
 				},
 				e => {
 					let val = e.target.value;
-					if(this.settings.encrypted) val = this.encrypt(val, password);
+					if(this.settings.encrypted && val != "") val = this.encrypt(val, password);
 					if(this.settings["token" + i] != val){
 						this.settings["token" + i] = val;
 						this.settings["avatar" + i] = e.target.value == this.UserInfoStore.getToken() ? NeatoLib.Modules.get(["getCurrentUser"]).getCurrentUser().avatarURL || "" : "";
@@ -524,6 +556,12 @@ class AccountSwitcher {
 				this.settings.language = e.getAttribute("data-value");
 				this.saveSettings();
 				this.loadLanguage();
+			}), this.getName());
+			NeatoLib.Settings.pushElement(NeatoLib.Settings.Elements.createToggleSwitch(this.local.settings.showChangelog, this.settings.showChangelog, e => {
+				window.setTimeout(()=>{
+					this.settings.showChangelog = e.target.parentElement.hasClass("valueChecked-m-4IJZ");
+					this.saveSettings();
+				},1);
 			}), this.getName());
 			NeatoLib.Settings.pushElement(NeatoLib.Settings.Elements.createButton(this.local.settings.copyToken, e => {
 				let tempInput = document.createElement("input");
@@ -647,13 +685,13 @@ class AccountSwitcher {
 
 	alertText(e, t, callbackOk, callbackCancel) {
 		let backdrop = $(`<div class="backdrop-1wrmKB da-backdrop" style="opacity: 0.85; background-color: rgb(0, 0, 0); z-index: 1000; transform: translateZ(0px);"></div>`);
-		let a =  $(`<div class="modal-36zFtW da-modal" style="opacity: 1; transform: scale(1) translateZ(0px); z-index: 9999999">
+		let a =  $(`<div class="modal-3c3bKg da-modal" style="opacity: 1; transform: scale(1) translateZ(0px); z-index: 9999999">
 						<div data-focus-guard="true" tabindex="0" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
 						<div data-focus-guard="true" tabindex="1" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
-						<div data-focus-lock-disabled="false" class="inner-2VEzy9 da-inner">
-							<div class="modal-3v8ziU da-modal container-14fypd da-container sizeSmall-2-_smo">
-								<div class="scrollerWrap-2lJEkd firefoxFixScrollFlex-cnI2ix da-scrollerWrap da-firefoxFixScrollFlex content-2KoCOZ da-content scrollerThemed-2oenus da-scrollerThemed themeGhostHairline-DBD-2d">
-									<div class="scroller-2FKFPG firefoxFixScrollFlex-cnI2ix da-scroller da-firefoxFixScrollFlex systemPad-3UxEGl da-systemPad inner-2Z5QZX da-inner content-dfabe7 da-content">
+						<div data-focus-lock-disabled="false" class="inner-1ilYF7 da-inner">
+							<div class="modal-yWgWj- da-modal container-14fypd da-container sizeSmall-1jtLQy">
+								<div class="scrollerWrap-2lJEkd firefoxFixScrollFlex-cnI2ix da-scrollerWrap da-firefoxFixScrollFlex content-1EtbQh da-content scrollerThemed-2oenus da-scrollerThemed themeGhostHairline-DBD-2d">
+									<div class="scroller-2FKFPG firefoxFixScrollFlex-cnI2ix da-scroller da-firefoxFixScrollFlex systemPad-3UxEGl da-systemPad inner-ZyuQk0 da-inner content-dfabe7 da-content">
 										<h2 class="h2-2gWE-o title-3sZWYQ size16-14cGz5 height20-mO2eIN weightSemiBold-NJexzi da-h2 da-title da-size16 da-height20 da-weightSemiBold defaultColor-1_ajX0 da-defaultColor title-18-Ds0 marginBottom20-32qID7 marginTop8-1DLZ1n da-title da-marginBottom20 da-marginTop8">
 											${e}
 										</h2>
@@ -662,7 +700,7 @@ class AccountSwitcher {
 										</div>
 									</div>
 								</div>
-								<div class="flex-1xMQg5 flex-1O1GKY da-flex da-flex horizontalReverse-2eTKWD horizontalReverse-3tRjY7 flex-1O1GKY directionRowReverse-m8IjIq justifyBetween-2tTqYu alignStretch-DpGPf3 wrap-ZIn9Iy footer-30ewN8 da-footer" style="flex: 0 0 auto;">
+								<div class="flex-1xMQg5 flex-1O1GKY da-flex da-flex horizontalReverse-2eTKWD horizontalReverse-3tRjY7 flex-1O1GKY directionRowReverse-m8IjIq justifyBetween-2tTqYu alignStretch-DpGPf3 wrap-ZIn9Iy footer-3rDWdC da-footer" style="flex: 0 0 auto;">
 									<button class="primaryButton-2BsGPp da-primaryButton button-38aScr da-button lookFilled-1Gx00P colorBrand-3pXr91 sizeXlarge-2yFAlZ grow-q77ONN da-grow">
 										<div class="contents-18-Yxp da-contents">Okay</div>
 									</button>
@@ -703,13 +741,13 @@ class AccountSwitcher {
 
 	confirm(e, t, callbackConfirm, callbackCancel){
 		let backdrop = $(`<div class="backdrop-1wrmKB da-backdrop" style="opacity: 0.85; background-color: rgb(0, 0, 0); z-index: 1000; transform: translateZ(0px);"></div>`);
-		let a =  $(`<div class="modal-36zFtW da-modal" style="opacity: 1; transform: scale(1) translateZ(0px); z-index: 9999999">
+		let a =  $(`<div class="modal-3c3bKg da-modal" style="opacity: 1; transform: scale(1) translateZ(0px); z-index: 9999999">
 						<div data-focus-guard="true" tabindex="0" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
 						<div data-focus-guard="true" tabindex="1" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
-						<div data-focus-lock-disabled="false" class="inner-2VEzy9 da-inner">
-							<div class="modal-3v8ziU da-modal container-14fypd da-container sizeSmall-2-_smo">
-								<div class="scrollerWrap-2lJEkd firefoxFixScrollFlex-cnI2ix da-scrollerWrap da-firefoxFixScrollFlex content-2KoCOZ da-content scrollerThemed-2oenus da-scrollerThemed themeGhostHairline-DBD-2d">
-									<div class="scroller-2FKFPG firefoxFixScrollFlex-cnI2ix da-scroller da-firefoxFixScrollFlex systemPad-3UxEGl da-systemPad inner-2Z5QZX da-inner content-dfabe7 da-content">
+						<div data-focus-lock-disabled="false" class="inner-1ilYF7 da-inner">
+							<div class="modal-yWgWj- da-modal container-14fypd da-container sizeSmall-1jtLQy">
+								<div class="scrollerWrap-2lJEkd firefoxFixScrollFlex-cnI2ix da-scrollerWrap da-firefoxFixScrollFlex content-1EtbQh da-content scrollerThemed-2oenus da-scrollerThemed themeGhostHairline-DBD-2d">
+									<div class="scroller-2FKFPG firefoxFixScrollFlex-cnI2ix da-scroller da-firefoxFixScrollFlex systemPad-3UxEGl da-systemPad inner-ZyuQk0 da-inner content-dfabe7 da-content">
 										<h2 class="h2-2gWE-o title-3sZWYQ size16-14cGz5 height20-mO2eIN weightSemiBold-NJexzi da-h2 da-title da-size16 da-height20 da-weightSemiBold defaultColor-1_ajX0 da-defaultColor title-18-Ds0 marginBottom20-32qID7 marginTop8-1DLZ1n da-title da-marginBottom20 da-marginTop8">
 											${e}
 										</h2>
@@ -718,8 +756,8 @@ class AccountSwitcher {
 										</div>
 									</div>
 								</div>
-								<div class="flex-1xMQg5 flex-1O1GKY da-flex da-flex horizontalReverse-2eTKWD horizontalReverse-3tRjY7 flex-1O1GKY directionRowReverse-m8IjIq justifyBetween-2tTqYu alignStretch-DpGPf3 wrap-ZIn9Iy footer-30ewN8 da-footer" style="flex: 0 0 auto;">
-									<button class="primaryButton-2BsGPp da-primaryButton button-38aScr da-button lookFilled-1Gx00P colorBrand-3pXr91 sizeXlarge-2yFAlZ grow-q77ONN da-grow">
+								<div class="flex-1xMQg5 flex-1O1GKY da-flex da-flex horizontalReverse-2eTKWD horizontalReverse-3tRjY7 flex-1O1GKY directionRowReverse-m8IjIq justifyBetween-2tTqYu alignStretch-DpGPf3 wrap-ZIn9Iy footer-3rDWdC da-footer" style="flex: 0 0 auto;">
+									<button class="primaryButton-2BsGPp da-primaryButton button-38aScr da-button lookFilled-1Gx00P colorBrand-3pXr91 sizeXlarge-2yFAlZ grow-q77ONN da-grow" style="margin-left:10px;">
 										<div class="contents-18-Yxp da-contents">Cancel</div>
 									</button>
 									<button class="primaryButton-2BsGPp da-primaryButton button-38aScr da-button lookFilled-1Gx00P colorBrand-3pXr91 sizeXlarge-2yFAlZ grow-q77ONN da-grow">
@@ -778,6 +816,16 @@ class AccountSwitcher {
 			input = input.replace(`{${i}}`, args[i]);
 		}
 		return input;
+	}
+	hashString(input) {
+		var hash = 0, i, chr;
+		if (input.length === 0) return hash;
+		for (i = 0; i < this.length; i++) {
+			chr   = input.charCodeAt(i);
+			hash  = ((hash << 5) - hash) + chr;
+			hash |= 0;
+		}
+		return hash;
 	}
 
 
