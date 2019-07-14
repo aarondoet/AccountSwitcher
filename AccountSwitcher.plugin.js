@@ -5,8 +5,8 @@ class AccountSwitcher {
 	getAuthor(){return "l0c4lh057";}
 	getVersion(){return "1.1.6";}
 	getDescription(){return this.local.plugin.description;}
-	
-	
+
+
 	get defaultSettings(){
 		return {
 			language: "auto",
@@ -45,194 +45,13 @@ class AccountSwitcher {
 			lastUsedVersion: "0.0.0"
 		}
 	}
-	
+
 	get local(){
-		if(!this.strings) this.strings = JSON.parse(`{
-			"en": {
-				"plugin": {
-					"description": "Switch between multiple accounts with AltLeft+1 up to AltLeft+0"
-				},
-				"settings": {
-					"language": "Language",
-					"languages": {
-						"en": {"name":"English","translator":"l0c4lh057"},
-						"de": {"name":"German","translator":"l0c4lh057"},
-						"fr": {"name":"French","translator":"Dark Mood"},
-						"ru": {"name":"Russian","translator":"•MGC•Mr_ChAI#7272"},
-						"auto": {"name":"Detect automatically"}
-					},
-					"warning": "Do <strong>NOT</strong> share any of your tokens with someone else. Otherwise they can use your account with all actions that don't need a password. This can't be prevented by 2fa.<br>If you think someone has your token, enable 2fa and change your password. For both actions your account will get a new token. But don't forget to change the token in this settings!<br><br>PLEASE SET A PASSWORD BY ENABLING ENCRYPTION! If you don't do this, all your tokens will be saved in clear text. Every plugin and every program on your computer can access the file and all your tokens could get public at once. If you activate encryption all tokens will be encrypted with your password as key. You will need to enter your password every time you open the settings and every time you want to change your account.",
-					"encryption": "Encrypt tokens",
-					"account": "Account {0}",
-					"password": {
-						"set": "Set password",
-						"setDescription": "Please set the password you want to use for this plugin here. If you forget it all your tokens can't be restored.<br><input id='accountswitcher-passwordinput' type='password' placeholder='Your password here'>",
-						"remove": "Remove password",
-						"removeDescription": "Are you sure you want to remove the password? This will save your tokens in clear text!<br>If you really want to risk this click the OKAY button otherwise click outside of this popup."
-					},
-					"accountNamePlaceholder": "Account name",
-					"accountTokenPlaceholder": "Account token",
-					"copyToken": "Copy token of current account",
-					"copiedToken": "Token copied",
-					"support": "Get Support",
-					"passwordRequired": {
-						"title": "Password required",
-						"description": "<input id='accountswitcher-passwordinput' type='password' placeholder='Your password here'>"
-					},
-					"useCurrent": "Use Current"
-				},
-				"couldNotDecrypt": "Could not decrypt token {0}.",
-				"alreadyUsingAccount": "You are already using this account",
-				"invalidToken": "This token is invalid",
-				"passwordRequired": {
-					"title": "Password required",
-					"description": "To change the account you need to type in the password you once set.<br>If you can't remember it you can disable token encryption in the settings but then all your tokens are gone.<br><input id='accountswitcher-passwordinput' type='password' placeholder='Your password here'>"
-				},
-				"removeAccount": {
-					"title": "Removing account",
-					"description": "Do you really want to remove that account? If you accept this you can't get the account information back again.",
-					"tooltip": "Remove Account"
-				}
-			},
-			"de": {
-				"plugin": {
-					"description": "Wechsel zwischen mehreren Accounts, indem du AltLeft+1 bis AltLeft+0 drückst"
-				},
-				"settings": {
-					"language": "Sprache",
-					"languages": {
-						"en": {"name":"Englisch","translator":"l0c4lh057"},
-						"de": {"name":"Deutsch","translator":"l0c4lh057"},
-						"fr": {"name":"Französisch","translator":"Dark Mood"},
-						"ru": {"name":"Russian","translator":"•MGC•Mr_ChAI#7272"},
-						"auto": {"name":"Automatisch erkennen"}
-					},
-					"warning": "Teil deine Account-Tokens <strong>NIEMALS</strong> mit jemand anderem! Dadurch könnten diese deinen Account mit allen Funktionen, die keine Bestätigung per Passwort benötigen, nutzen. Das kann auch nicht mit 2FA verhindert werden.<br>Wenn du denkst, dass jemand deinen Token hat, aktiviere 2FA und änder dein Passwort. Für beide Aktionen sollte dein Account einen neuen Token bekommen. Vergiss aber nicht, den Token in den Einstellungen dieses Plugins zu ändern.<br><br>BITTE SETZ EIN PASSWORT, INDEM DU VERSCHLÜSSELUNG AKTIVIERST! Wenn du das nicht tust, werden alle Tokens in Klartext gespeichert. Jedes Plugin und jedes Programm auf deinem Computer kann auf die Datei und damit auf alle Tokens zugreifen, wodurch diese alle mit einem Mal öffentlich geraten können. Wenn du Verschlüsselung aktivierst, werden alle Tokens mit dem eingegebenen Passwort verschlüsselt. Jedes Mal, wenn auf einen Token zugegriffen wird (Einstellungen öffnen/Account wechseln), musst du dieses Passwort wieder eingeben.",
-					"encryption": "Token verschlüsseln",
-					"account": "Account {0}",
-					"password": {
-						"set": "Set password",
-						"setDescription": "Setz hier das Passwort, das du in diesem Plugin verwenden willst. Wenn du das Passwort vergisst, kannst du die Tokens nicht mehr wiederherstellen.<br><input id='accountswitcher-passwordinput' type='password' placeholder='Dein Passwort hier'>",
-						"remove": "Remove password",
-						"removeDescription": "Willst du das Passwort wirklich entfernen? Dadurch werden alle Token in Klartext gespeichert!<br>Wenn du das Passwort wirklich entfernen willst, klick auf den OKAY-Knopf, sonst außerhalb dieses Popups."
-					},
-					"accountNamePlaceholder": "Account-Name",
-					"accountTokenPlaceholder": "Account-Token",
-					"copyToken": "Token des aktuellen Accounts kopieren",
-					"copiedToken": "Token kopiert",
-					"support": "Support",
-					"passwordRequired": {
-						"title": "Passwort benötigt",
-						"description": "<input id='accountswitcher-passwordinput' type='password' placeholder='Dein Passwort hier'>"
-					},
-					"useCurrent": "Jetziger Account"
-				},
-				"couldNotDecrypt": "Token {0} konnte nicht entschlüsselt werden.",
-				"alreadyUsingAccount": "Du benutzt diesen Account bereits",
-				"invalidToken": "Der Token ist ungültig",
-				"passwordRequired": {
-					"title": "Passwort benötigt",
-					"description": "Um deinen Account zu wechseln muss du das Passwort eingeben, dass du gesetzt hast.<br>Wenn du dein Passwort vergessen hast, kannst du die Verschlüsselung in den Einstellungen deaktivieren, aber dann sind all deine Tokens nicht mehr zugreifbar.<br><input id='accountswitcher-passwordinput' type='password' placeholder='Dein Passwort hier'>"
-				},
-				"removeAccount": {
-					"title": "Account entfernen",
-					"description": "Willst du den Account wirklich entfernen? Dann kannst du diesen nicht mehr nutzen, die Daten gehen verloren.",
-					"tooltip": "Account entfernen"
-				}
-			},
-			"fr": {
-				"plugin": {
-					"description": "Passez d'un compte à l'autre avec AltLeft+1 , AltLeft+2 , etc..."
-				},
-				"settings": {
-					"language": "Langage",
-					"languages": {
-						"en": {"name":"English","translator":"l0c4lh057"},
-						"de": {"name":"German","translator":"l0c4lh057"},
-						"fr": {"name":"French","translator":"Dark Mood"},
-						"ru": {"name":"Russian","translator":"•MGC•Mr_ChAI#7272"},
-						"auto": {"name":"Détection automatique"}
-					},
-					"warning": "Ne <strong>PAS</strong> partager vos tokens avec quelqu'un d'autre. Sinon, ils peuvent utiliser votre compte/vos tokens avec toutes les actions qui n'ont pas besoin d'un mot de passe. Ceci ne peut être évité par l'a2f.<br>Si vous pensez que quelqu'un a votre token, activez l'a2f et changez votre mot de passe. Pour les deux actions, votre compte recevra un nouveau jeton. Mais n'oubliez pas de changer le token dans les paramètres suivants!<br><br>VEUILLEZ DÉFINIR UN MOT DE PASSE POUR ACTIVER LE CRYPTAGE! Si vous ne le faites pas, tous vos tokens seront sauvegardés en texte clair. Chaque plugin et chaque programme sur votre ordinateur peut accéder au fichier et tous vos jetons peuvent être rendus publics en même temps. Si vous activez le cryptage, tous les jetons seront cryptés avec votre mot de passe comme clé. Vous devrez entrer votre mot de passe chaque fois que vous ouvrirez les paramètres et chaque fois que vous voudrez changer votre compte.",
-					"encryption": "Crypter les tokens",
-					"account": "Comptes: {0}",
-					"password": {
-						"set": "Définir un mot de passe",
-						"setDescription": "Veuillez définir ici le mot de passe que vous souhaitez utiliser pour ce plugin. Si vous l'oubliez, tous vos jetons ne peuvent pas être restaurés et seront donc supprimés...<br><input id='accountswitcher-passwordinput' type='password' placeholder='Votre mot de passe ici'>",
-						"remove": "Supprimer le mot de passe",
-						"removeDescription": "Êtes-vous sûr de vouloir supprimer le mot de passe ? Ceci sauvegardera vos tokens en texte clair!<br>ISi vous voulez vraiment prendre ce risque, cliquez sur le bouton OKAY/OK sinon cliquez à l'extérieur de ce popup."
-					},
-					"accountNamePlaceholder": "Nom de compte",
-					"accountTokenPlaceholder": "Token de compte",
-					"copyToken": "Copier le token du compte actuel",
-					"copiedToken": "Token copié",
-					"support": "Avoir le support",
-					"passwordRequired": {
-						"title": "Mot de passe requis",
-						"description": "<input id='accountswitcher-passwordinput' type='password' placeholder='Votre mot de passe ici'>"
-					},
-					"useCurrent": "Utilisation actuelle"
-				},
-				"couldNotDecrypt": "Impossible de décrypter les jetons {0}.",
-				"alreadyUsingAccount": "Vous utilisez déjà ce compte",
-				"invalidToken": "Le token est invalide",
-				"passwordRequired": {
-					"title": "Mot de passe requis",
-					"description": "Pour changer de compte, vous devez saisir le mot de passe que vous avez défini une fois.<br>Si vous ne vous en souvenez pas, vous pouvez désactiver le cryptage des tokens dans les paramètres, mais tous vos tokens auront disparus.<br><input id='accountswitcher-passwordinput' type='password' placeholder='Votre mot de passe ici'>"
-				},
-				"removeAccount": {
-					"title": "Removing account",
-					"description": "Do you really want to remove that account? If you accept this you can't get the account information back again.",
-					"tooltip": "Remove Account"
-				}
-			},
-			"ru": {
-				"plugin": {
-					"description": "Переключайтесь между аккаунтами с помощью сочетаний клавиш от AltLeft+1 до AltLeft+0"
-				},
-				"settings": {
-					"language": "Язык",
-					"languages": {
-						"en": {"name":"Английский","translator":"l0c4lh057"},
-						"de": {"name":"Немецкий","translator":"l0c4lh057"},
-						"fr": {"name":"Французский","translator":"Dark Mood"},
-						"ru": {"name":"Русский","translator":"•MGC•Mr_ChAI#7272"},
-						"auto": {"name":"Автоопределение"}
-					},
-					"warning": "<strong>НЕ</strong> передавайте никому свой токен! Иначе он(а) получит полный доступ к вашему аккаунту. Это не может быть предотвращено с помощью 2FA.<br>Если вы считаете, что у кого-то есть ваш токен, включите/выключите 2FA или поменяйте пароль - каждое из этих действий меняет пароль. Но не забудьте поменять его в настройках!<br><br>ПОЖАЛУЙСТА, УСТАНОВИТЕ ПАРОЛЬ, ВКЛЮЧИВ ШИФРОВАНИЕ! Если этого не сделать, токены будут храниться в виде обычного текста, и любой плагин/программа сможет их прочесть, в результате все ваши токены могут быть переданы кому-то другому. Если вы включите шифрование, все токены будут зашифрованы с паролем в качестве ключа. Вам придется вводить пароль каждый раз, когда вы открываете настройки плагина или меняете аккаунт.",
-					"encryption": "Шифрование токенов",
-					"account": "Аккаунт {0}",
-					"password": {
-						"set": "Установите пароль",
-						"setDescription": "Пожалуйста, установите пароль. Если вы его забудете, вы не сможете восстановить токены.<br><input id='accountswitcher-passwordinput' type='password' placeholder='Новый пароль'>",
-						"remove": "Удаление пароля",
-						"removeDescription": "Вы уверены, что хотите убрать пароль? Ваши токены будут храниться в виде обычного текста!<br>Если вы все же решили рискнуть, нажмите кнопку OKAY, в противном случае кликните снаружи этого окошка."
-					},
-					"accountNamePlaceholder": "Имя аккаунта",
-					"accountTokenPlaceholder": "Токен аккаунта",
-					"copyToken": "Скопировать токен текущего аккаунта",
-					"copiedToken": "Токен скопирован",
-					"support": "Помощь",
-					"passwordRequired": {
-						"title": "Необходим пароль",
-						"description": "<input id='accountswitcher-passwordinput' type='password' placeholder='Пароль'>"
-					},
-					"useCurrent": "Использовать этот"
-				},
-				"couldNotDecrypt": "Не удалось расшифровать токен аккаунта {0}.",
-				"alreadyUsingAccount": "Вы уже используете этот аккаунт",
-				"invalidToken": "Неправильный токен",
-				"passwordRequired": {
-					"title": "Необходим пароль",
-					"description": "Чтобы сменить аккаунт, нужен установленный вами пароль.<br>Если вы его забыли, вы можете отключить шифрование, но тогда все токены пропадут.<br><input id='accountswitcher-passwordinput' type='password' placeholder='Пароль'>"
-				},
-				"removeAccount": {
-					"title": "Удаление аккаунта",
-					"description": "Вы точно хотите удалить аккаунт? Если вы подтвердите, вы не сможете вернуть информацию об аккаунте.",
-					"tooltip": "Удалить аккаунт"
-				}
-			}
-		}`);
+		if (!this.strings) {
+			xmlHttp.open("GET", 'https://l0c4lh057.github.io/AccountSwitcher/translations.json', false); // false for synchronous request
+	    	xmlHttp.send(null);
+			this.strings = JSON.parse(xmlHttp.responseText);
+		}
 		return this.strings[this.lang] || this.strings["en"];
 	}
 
@@ -244,8 +63,12 @@ class AccountSwitcher {
 			observerScript.src = "https://l0c4lh057.github.io/BetterDiscord/Plugins/Scripts/pluginlist.js";
 			document.head.appendChild(observerScript);
 		}
+		var xmlHttp = new XMLHttpRequest();
+    	xmlHttp.open("GET", 'https://l0c4lh057.github.io/AccountSwitcher/translations.json', false); // false for synchronous request
+    	xmlHttp.send(null);
+		this.strings = JSON.parse(xmlHttp.responseText);
 	}
-	
+
 	start(){
 		if(!document.getElementById("accountswitcher-cryptlib")){
 			let cryptLib = document.createElement("script");
@@ -353,7 +176,7 @@ class AccountSwitcher {
 			}
 		}
 	}
-	
+
 	saveSettings() {
 		NeatoLib.Settings.save(this);
 	}
@@ -402,9 +225,9 @@ class AccountSwitcher {
 			}
 		})
 	}
-	
-	
-	
+
+
+
 	unregisterKeybinds() {
 		for(let i = 1; i < 11; i++){
 			NeatoLib.Keybinds.detachListener("accountswitcher-keybind-" + i);
@@ -442,7 +265,7 @@ class AccountSwitcher {
 			});
 		}
 	}
-	
+
 	loginWithToken(token){
 		if(token == this.UserInfoStore.getToken()){
 			NeatoLib.showToast(this.local.alreadyUsingAccount, "error");
@@ -464,8 +287,8 @@ class AccountSwitcher {
 		pluginModule.enablePlugin("AccountDetailsPlus");
 	}
 
-	
-	
+
+
 	getSettingsPanel() {
 		let password = "";
 		setTimeout(() => {
@@ -534,9 +357,16 @@ class AccountSwitcher {
 				document.body.removeChild(tempInput);
 				NeatoLib.showToast(this.local.settings.copiedToken, "success");
 			}, "margin-top:10px;"), this.getName());
+			NeatoLib.Settings.pushElement(NeatoLib.Settings.Elements.createButton(this.local.settings.fetchTranslations, e => {
+				var xmlHttp = new XMLHttpRequest();
+		    	xmlHttp.open("GET", 'https://l0c4lh057.github.io/AccountSwitcher/translations.json', false); // false for synchronous request
+		    	xmlHttp.send(null);
+				this.strings = JSON.parse(xmlHttp.responseText);
+				NeatoLib.showToast(this.local.settings.fetchedTranslations, "success");
+			}, "margin-left:10px;margin-top:10px;"), this.getName());
 			NeatoLib.Settings.pushElement(NeatoLib.Settings.Elements.createButton(this.local.settings.support, e => {
 				window.open("https://l0c4lh057.github.io/discord.html");
-			}, "margin-left:10px;margin-top:10px;"), this.getName());
+			}, "margin-left:20px;margin-top:10px;"), this.getName());
 		}, 0);
 
 		if(this.settings.encrypted){
@@ -553,7 +383,7 @@ class AccountSwitcher {
 				// cancelled input
 			});
 		}
-		
+
 		if(global.ED && global.EDApi){
 			window.setTimeout(()=>{
 				$("#bd-settingspane-container").attr("data-no-focus-lock", "true");
@@ -563,7 +393,7 @@ class AccountSwitcher {
 
 		return NeatoLib.Settings.Elements.pluginNameLabel(this.getName(), this.getAuthor());
 	}
-	
+
 	createTextField(label, value1, value2, placeholder1, placeholder2, callback1, callback2, acc, options = {}) {
 		let element = document.createElement("div");
 		element.style.marginBottom = "15px";
@@ -629,7 +459,7 @@ class AccountSwitcher {
 		});
 		return element;
 	}
-	
+
 	createWarning(){
 		let element = document.createElement("div");
 		element.insertAdjacentHTML("beforeend", `
