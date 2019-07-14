@@ -3,7 +3,7 @@
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "1.1.7";}
+	getVersion(){return "1.1.8";}
 	getDescription(){return this.local.plugin.description;}
 	
 	
@@ -304,11 +304,13 @@ class AccountSwitcher {
 		if(this.settings.lastUsedVersion != this.getVersion()){
 			this.settings.lastUsedVersion = this.getVersion();
 			if(this.settings.showChangelog)
-				this.alertText("Changelog", `<ul style="list-style-type:circle;padding-left:20px;">
+				this.alertText("Changelog", `1.1.7:<ul style="list-style-type:circle;padding-left:20px;">
 					<li>Added option to disable the changelog</li>
 					<li>Small changes in token handling (not encrypting empty tokens anymore -&gt; no need to enter password for empty tokens)</li>
 					<li>Option to go to login screen when token is empty</li>
 					<li>Only storing the has of the token you switched to, even though it is only saved there for a very short time</li>
+				</ul><br>1.1.8:<ul style="list-style-type:circle;padding-left:20px;">
+					<li>Fixed switching to login screen option when token is empty</li>
 				</ul>`);
 		}
 		if(!this.settings.encrypted){
@@ -449,14 +451,10 @@ class AccountSwitcher {
 
 	login(i){
 		if(!this.settings.encrypted){
-			this.loginWithToken(this.settings["token" + i]);
+			this.loginWithToken(this.settings["token" + i], i);
 		}else{
 			if(this.settings["token" + i] == ""){
-				this.confirm(this.local.noAccountSet.title, this.formatString(this.local.noAccountSet.description, i), e => {
-					this.AccountManager.loginToken("");
-				}, e => {
-					// cancelled
-				});
+				this.loginWithToken("", i);
 			}else{
 				this.alertText(this.local.passwordRequired.title, this.local.passwordRequired.description, e => {
 					let pw = document.getElementById("accountswitcher-passwordinput").value;
@@ -464,7 +462,7 @@ class AccountSwitcher {
 						let token = this.decrypt(this.settings["token" + i], pw);
 						if(token.length > 0 && token != this.UserInfoStore.getToken()) this.settings.switchedTo = this.hashString(this.settings["token" + i]);
 						this.saveSettings();
-						this.loginWithToken(token);
+						this.loginWithToken(token, i);
 					}catch(ex){
 						NeatoLib.showToast(this.formatString(this.local.couldNotDecrypt, i), "error");
 					}
@@ -475,7 +473,7 @@ class AccountSwitcher {
 		}
 	}
 	
-	loginWithToken(token){
+	loginWithToken(token, i){
 		if(token == this.UserInfoStore.getToken()){
 			NeatoLib.showToast(this.local.alreadyUsingAccount, "error");
 		}else if(token.length > 10 && !token.includes(" ")){
@@ -484,6 +482,12 @@ class AccountSwitcher {
 				this.stopAccountDetailsPlus();
 				window.setTimeout(()=>{this.startAccountDetailsPlus();}, 5000);
 			}
+		}else if(token == ""){
+			this.confirm(this.local.noAccountSet.title, this.formatString(this.local.noAccountSet.description, i), e => {
+				this.AccountManager.loginToken("");
+			}, e => {
+				// cancelled
+			});
 		}else{
 			NeatoLib.showToast(this.local.invalidToken, "error");
 		}
