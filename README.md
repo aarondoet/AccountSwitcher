@@ -20,3 +20,6 @@ Just paste the token into the input and you are ready to switch to that account.
 To switch between account you only need to press the `AltLeft` key and a number key (NOT NUMPAD!). With `1` you will switch to the account labeled as `Account 1` in the settings. `2` is `Account 2` etc. `0` is `Account 10`.
 
 You can also middle click your avatar in the quick settings field at the bottom. A popup will appear with the accounts you have set in the settings (and their avatar, but for some people it doesn't seem to work). Just click the account you want to switch to and everything should work fine.
+
+## Download
+[Click here to download](https://betterdiscord.net/ghdl/?url=https://github.com/l0c4lh057/AccountSwitcher/blob/master/AccountSwitcher.plugin.js)

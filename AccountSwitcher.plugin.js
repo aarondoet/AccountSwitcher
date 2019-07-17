@@ -3,7 +3,7 @@
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "1.1.6";}
+	getVersion(){return "1.1.8";}
 	getDescription(){return this.local.plugin.description;}
 
 
@@ -42,6 +42,7 @@ class AccountSwitcher {
 			avatar10: "",
 			switchedTo: "",
 			encrypted: false,
+			showChangelog: true,
 			lastUsedVersion: "0.0.0"
 		}
 	}
@@ -105,10 +106,15 @@ class AccountSwitcher {
 		this.registerKeybinds();
 		if(this.settings.lastUsedVersion != this.getVersion()){
 			this.settings.lastUsedVersion = this.getVersion();
-			this.alertText("Changelog", `<ul style="list-style-type:circle;padding-left:20px;">
-			<li>Fuck discord's class changes (part 2)</li>
-			<li>Fuck EnhancedDiscord</li>
-			</ul>`);
+			if(this.settings.showChangelog)
+				this.alertText("Changelog", `1.1.7:<ul style="list-style-type:circle;padding-left:20px;">
+					<li>Added option to disable the changelog</li>
+					<li>Small changes in token handling (not encrypting empty tokens anymore -&gt; no need to enter password for empty tokens)</li>
+					<li>Option to go to login screen when token is empty</li>
+					<li>Only storing the has of the token you switched to, even though it is only saved there for a very short time</li>
+				</ul><br>1.1.8:<ul style="list-style-type:circle;padding-left:20px;">
+					<li>Fixed switching to login screen option when token is empty</li>
+				</ul>`);
 		}
 		if(!this.settings.encrypted){
 			let token = this.UserInfoStore.getToken();
@@ -170,7 +176,7 @@ class AccountSwitcher {
 			this.settings.switchedTo = "";
 			this.saveSettings();
 			for(let i = 1; i < 11; i++){
-				if(this.settings["token" + i] == switchedTo){
+				if(this.hashString(this.settings["token" + i]) == switchedTo){
 					this.settings["avatar" + i] = NeatoLib.Modules.get(["getCurrentUser"]).getCurrentUser().avatarURL || "";
 				}
 			}
@@ -186,7 +192,7 @@ class AccountSwitcher {
 		let menu = $(`<div class="accountswitcher-switchmenu"></div>`)[0];
 		$(menu).css("bottom", (e.target.offset().bottom - e.target.offset().top + 27) + "px").css("left", (e.target.offset().left - 5) + "px");
 		for(let i = 1; i < 11; i++){
-			if(this.settings["name" + i] != ""){
+			if((this.settings["name" + i] != "") && (this.settings["token" + i] != "")){
 				let wrapper = $(`<div class="accountswitcher-accountwrapper"></div>`)[0];
 				let av = this.settings["avatar" + i] == "" ? $(`<img src="https://pixy.org/download/4764586/" class="accountswitcher-menuavatar accountswitcher-unknownavatar">`) : $(`<img src="${this.settings["avatar" + i]}" class="accountswitcher-menuavatar">`);
 				av.on("click", ()=>{
@@ -248,25 +254,29 @@ class AccountSwitcher {
 
 	login(i){
 		if(!this.settings.encrypted){
-			this.loginWithToken(this.settings["token" + i]);
+			this.loginWithToken(this.settings["token" + i], i);
 		}else{
-			this.alertText(this.local.passwordRequired.title, this.local.passwordRequired.description, e => {
-				let pw = document.getElementById("accountswitcher-passwordinput").value;
-				try{
-					let token = this.decrypt(this.settings["token" + i], pw);
-					if(token.length > 0 && token != this.UserInfoStore.getToken()) this.settings.switchedTo = this.settings["token" + i];
-					this.saveSettings();
-					this.loginWithToken(token);
-				}catch(ex){
-					NeatoLib.showToast(this.formatString(this.local.couldNotDecrypt, i), "error");
-				}
-			}, e => {
-				// input cancelled
-			});
+			if(this.settings["token" + i] == ""){
+				this.loginWithToken("", i);
+			}else{
+				this.alertText(this.local.passwordRequired.title, this.local.passwordRequired.description, e => {
+					let pw = document.getElementById("accountswitcher-passwordinput").value;
+					try{
+						let token = this.decrypt(this.settings["token" + i], pw);
+						if(token.length > 0 && token != this.UserInfoStore.getToken()) this.settings.switchedTo = this.hashString(this.settings["token" + i]);
+						this.saveSettings();
+						this.loginWithToken(token, i);
+					}catch(ex){
+						NeatoLib.showToast(this.formatString(this.local.couldNotDecrypt, i), "error");
+					}
+				}, e => {
+					// input cancelled
+				});
+			}
 		}
 	}
-
-	loginWithToken(token){
+	
+	loginWithToken(token, i){
 		if(token == this.UserInfoStore.getToken()){
 			NeatoLib.showToast(this.local.alreadyUsingAccount, "error");
 		}else if(token.length > 10 && !token.includes(" ")){
@@ -275,6 +285,12 @@ class AccountSwitcher {
 				this.stopAccountDetailsPlus();
 				window.setTimeout(()=>{this.startAccountDetailsPlus();}, 5000);
 			}
+		}else if(token == ""){
+			this.confirm(this.local.noAccountSet.title, this.formatString(this.local.noAccountSet.description, i), e => {
+				this.AccountManager.loginToken("");
+			}, e => {
+				// cancelled
+			});
 		}else{
 			NeatoLib.showToast(this.local.invalidToken, "error");
 		}
@@ -331,7 +347,7 @@ class AccountSwitcher {
 				},
 				e => {
 					let val = e.target.value;
-					if(this.settings.encrypted) val = this.encrypt(val, password);
+					if(this.settings.encrypted && val != "") val = this.encrypt(val, password);
 					if(this.settings["token" + i] != val){
 						this.settings["token" + i] = val;
 						this.settings["avatar" + i] = e.target.value == this.UserInfoStore.getToken() ? NeatoLib.Modules.get(["getCurrentUser"]).getCurrentUser().avatarURL || "" : "";
@@ -347,6 +363,12 @@ class AccountSwitcher {
 				this.settings.language = e.getAttribute("data-value");
 				this.saveSettings();
 				this.loadLanguage();
+			}), this.getName());
+			NeatoLib.Settings.pushElement(NeatoLib.Settings.Elements.createToggleSwitch(this.local.settings.showChangelog, this.settings.showChangelog, e => {
+				window.setTimeout(()=>{
+					this.settings.showChangelog = e.target.parentElement.hasClass("valueChecked-m-4IJZ");
+					this.saveSettings();
+				},1);
 			}), this.getName());
 			NeatoLib.Settings.pushElement(NeatoLib.Settings.Elements.createButton(this.local.settings.copyToken, e => {
 				let tempInput = document.createElement("input");
@@ -477,13 +499,13 @@ class AccountSwitcher {
 
 	alertText(e, t, callbackOk, callbackCancel) {
 		let backdrop = $(`<div class="backdrop-1wrmKB da-backdrop" style="opacity: 0.85; background-color: rgb(0, 0, 0); z-index: 1000; transform: translateZ(0px);"></div>`);
-		let a =  $(`<div class="modal-36zFtW da-modal" style="opacity: 1; transform: scale(1) translateZ(0px); z-index: 9999999">
+		let a =  $(`<div class="modal-3c3bKg da-modal" style="opacity: 1; transform: scale(1) translateZ(0px); z-index: 9999999">
 						<div data-focus-guard="true" tabindex="0" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
 						<div data-focus-guard="true" tabindex="1" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
-						<div data-focus-lock-disabled="false" class="inner-2VEzy9 da-inner">
-							<div class="modal-3v8ziU da-modal container-14fypd da-container sizeSmall-2-_smo">
-								<div class="scrollerWrap-2lJEkd firefoxFixScrollFlex-cnI2ix da-scrollerWrap da-firefoxFixScrollFlex content-2KoCOZ da-content scrollerThemed-2oenus da-scrollerThemed themeGhostHairline-DBD-2d">
-									<div class="scroller-2FKFPG firefoxFixScrollFlex-cnI2ix da-scroller da-firefoxFixScrollFlex systemPad-3UxEGl da-systemPad inner-2Z5QZX da-inner content-dfabe7 da-content">
+						<div data-focus-lock-disabled="false" class="inner-1ilYF7 da-inner">
+							<div class="modal-yWgWj- da-modal container-14fypd da-container sizeSmall-1jtLQy">
+								<div class="scrollerWrap-2lJEkd firefoxFixScrollFlex-cnI2ix da-scrollerWrap da-firefoxFixScrollFlex content-1EtbQh da-content scrollerThemed-2oenus da-scrollerThemed themeGhostHairline-DBD-2d">
+									<div class="scroller-2FKFPG firefoxFixScrollFlex-cnI2ix da-scroller da-firefoxFixScrollFlex systemPad-3UxEGl da-systemPad inner-ZyuQk0 da-inner content-dfabe7 da-content">
 										<h2 class="h2-2gWE-o title-3sZWYQ size16-14cGz5 height20-mO2eIN weightSemiBold-NJexzi da-h2 da-title da-size16 da-height20 da-weightSemiBold defaultColor-1_ajX0 da-defaultColor title-18-Ds0 marginBottom20-32qID7 marginTop8-1DLZ1n da-title da-marginBottom20 da-marginTop8">
 											${e}
 										</h2>
@@ -492,7 +514,7 @@ class AccountSwitcher {
 										</div>
 									</div>
 								</div>
-								<div class="flex-1xMQg5 flex-1O1GKY da-flex da-flex horizontalReverse-2eTKWD horizontalReverse-3tRjY7 flex-1O1GKY directionRowReverse-m8IjIq justifyBetween-2tTqYu alignStretch-DpGPf3 wrap-ZIn9Iy footer-30ewN8 da-footer" style="flex: 0 0 auto;">
+								<div class="flex-1xMQg5 flex-1O1GKY da-flex da-flex horizontalReverse-2eTKWD horizontalReverse-3tRjY7 flex-1O1GKY directionRowReverse-m8IjIq justifyBetween-2tTqYu alignStretch-DpGPf3 wrap-ZIn9Iy footer-3rDWdC da-footer" style="flex: 0 0 auto;">
 									<button class="primaryButton-2BsGPp da-primaryButton button-38aScr da-button lookFilled-1Gx00P colorBrand-3pXr91 sizeXlarge-2yFAlZ grow-q77ONN da-grow">
 										<div class="contents-18-Yxp da-contents">Okay</div>
 									</button>
@@ -533,13 +555,13 @@ class AccountSwitcher {
 
 	confirm(e, t, callbackConfirm, callbackCancel){
 		let backdrop = $(`<div class="backdrop-1wrmKB da-backdrop" style="opacity: 0.85; background-color: rgb(0, 0, 0); z-index: 1000; transform: translateZ(0px);"></div>`);
-		let a =  $(`<div class="modal-36zFtW da-modal" style="opacity: 1; transform: scale(1) translateZ(0px); z-index: 9999999">
+		let a =  $(`<div class="modal-3c3bKg da-modal" style="opacity: 1; transform: scale(1) translateZ(0px); z-index: 9999999">
 						<div data-focus-guard="true" tabindex="0" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
 						<div data-focus-guard="true" tabindex="1" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
-						<div data-focus-lock-disabled="false" class="inner-2VEzy9 da-inner">
-							<div class="modal-3v8ziU da-modal container-14fypd da-container sizeSmall-2-_smo">
-								<div class="scrollerWrap-2lJEkd firefoxFixScrollFlex-cnI2ix da-scrollerWrap da-firefoxFixScrollFlex content-2KoCOZ da-content scrollerThemed-2oenus da-scrollerThemed themeGhostHairline-DBD-2d">
-									<div class="scroller-2FKFPG firefoxFixScrollFlex-cnI2ix da-scroller da-firefoxFixScrollFlex systemPad-3UxEGl da-systemPad inner-2Z5QZX da-inner content-dfabe7 da-content">
+						<div data-focus-lock-disabled="false" class="inner-1ilYF7 da-inner">
+							<div class="modal-yWgWj- da-modal container-14fypd da-container sizeSmall-1jtLQy">
+								<div class="scrollerWrap-2lJEkd firefoxFixScrollFlex-cnI2ix da-scrollerWrap da-firefoxFixScrollFlex content-1EtbQh da-content scrollerThemed-2oenus da-scrollerThemed themeGhostHairline-DBD-2d">
+									<div class="scroller-2FKFPG firefoxFixScrollFlex-cnI2ix da-scroller da-firefoxFixScrollFlex systemPad-3UxEGl da-systemPad inner-ZyuQk0 da-inner content-dfabe7 da-content">
 										<h2 class="h2-2gWE-o title-3sZWYQ size16-14cGz5 height20-mO2eIN weightSemiBold-NJexzi da-h2 da-title da-size16 da-height20 da-weightSemiBold defaultColor-1_ajX0 da-defaultColor title-18-Ds0 marginBottom20-32qID7 marginTop8-1DLZ1n da-title da-marginBottom20 da-marginTop8">
 											${e}
 										</h2>
@@ -548,8 +570,8 @@ class AccountSwitcher {
 										</div>
 									</div>
 								</div>
-								<div class="flex-1xMQg5 flex-1O1GKY da-flex da-flex horizontalReverse-2eTKWD horizontalReverse-3tRjY7 flex-1O1GKY directionRowReverse-m8IjIq justifyBetween-2tTqYu alignStretch-DpGPf3 wrap-ZIn9Iy footer-30ewN8 da-footer" style="flex: 0 0 auto;">
-									<button class="primaryButton-2BsGPp da-primaryButton button-38aScr da-button lookFilled-1Gx00P colorBrand-3pXr91 sizeXlarge-2yFAlZ grow-q77ONN da-grow">
+								<div class="flex-1xMQg5 flex-1O1GKY da-flex da-flex horizontalReverse-2eTKWD horizontalReverse-3tRjY7 flex-1O1GKY directionRowReverse-m8IjIq justifyBetween-2tTqYu alignStretch-DpGPf3 wrap-ZIn9Iy footer-3rDWdC da-footer" style="flex: 0 0 auto;">
+									<button class="primaryButton-2BsGPp da-primaryButton button-38aScr da-button lookFilled-1Gx00P colorBrand-3pXr91 sizeXlarge-2yFAlZ grow-q77ONN da-grow" style="margin-left:10px;">
 										<div class="contents-18-Yxp da-contents">Cancel</div>
 									</button>
 									<button class="primaryButton-2BsGPp da-primaryButton button-38aScr da-button lookFilled-1Gx00P colorBrand-3pXr91 sizeXlarge-2yFAlZ grow-q77ONN da-grow">
@@ -608,6 +630,16 @@ class AccountSwitcher {
 			input = input.replace(`{${i}}`, args[i]);
 		}
 		return input;
+	}
+	hashString(input) {
+		var hash = 0, i, chr;
+		if (input.length === 0) return hash;
+		for (i = 0; i < this.length; i++) {
+			chr   = input.charCodeAt(i);
+			hash  = ((hash << 5) - hash) + chr;
+			hash |= 0;
+		}
+		return hash;
 	}
 
 
