@@ -49,8 +49,9 @@ class AccountSwitcher {
 
 	get local(){
 		if (!this.strings) {
+			var xmlHttp = new XMLHttpRequest();
 			xmlHttp.open("GET", 'https://l0c4lh057.github.io/AccountSwitcher/translations.json', false); // false for synchronous request
-	    	xmlHttp.send(null);
+	    		xmlHttp.send(null);
 			this.strings = JSON.parse(xmlHttp.responseText);
 		}
 		return this.strings[this.lang] || this.strings["en"];
@@ -65,8 +66,8 @@ class AccountSwitcher {
 			document.head.appendChild(observerScript);
 		}
 		var xmlHttp = new XMLHttpRequest();
-    	xmlHttp.open("GET", 'https://l0c4lh057.github.io/AccountSwitcher/translations.json', false); // false for synchronous request
-    	xmlHttp.send(null);
+    		xmlHttp.open("GET", 'https://l0c4lh057.github.io/AccountSwitcher/translations.json', false); // false for synchronous request
+    		xmlHttp.send(null);
 		this.strings = JSON.parse(xmlHttp.responseText);
 	}
 
@@ -381,8 +382,8 @@ class AccountSwitcher {
 			}, "margin-top:10px;"), this.getName());
 			NeatoLib.Settings.pushElement(NeatoLib.Settings.Elements.createButton(this.local.settings.fetchTranslations, e => {
 				var xmlHttp = new XMLHttpRequest();
-		    	xmlHttp.open("GET", 'https://l0c4lh057.github.io/AccountSwitcher/translations.json', false); // false for synchronous request
-		    	xmlHttp.send(null);
+		    		xmlHttp.open("GET", 'https://l0c4lh057.github.io/AccountSwitcher/translations.json', false); // false for synchronous request
+		    		xmlHttp.send(null);
 				this.strings = JSON.parse(xmlHttp.responseText);
 				NeatoLib.showToast(this.local.settings.fetchedTranslations, "success");
 			}, "margin-left:10px;margin-top:10px;"), this.getName());
