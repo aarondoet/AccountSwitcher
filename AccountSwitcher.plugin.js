@@ -47,12 +47,16 @@ class AccountSwitcher {
 		}
 	}
 
-	get local(){
+	loadStrings(){
 		if (!this.strings) {
 			xmlHttp.open("GET", 'https://l0c4lh057.github.io/AccountSwitcher/translations.json', false); // false for synchronous request
 	    	xmlHttp.send(null);
 			this.strings = JSON.parse(xmlHttp.responseText);
 		}
+	}
+
+	get local(){
+		loadStrings();
 		return this.strings[this.lang] || this.strings["en"];
 	}
 
@@ -64,10 +68,7 @@ class AccountSwitcher {
 			observerScript.src = "https://l0c4lh057.github.io/BetterDiscord/Plugins/Scripts/pluginlist.js";
 			document.head.appendChild(observerScript);
 		}
-		var xmlHttp = new XMLHttpRequest();
-    	xmlHttp.open("GET", 'https://l0c4lh057.github.io/AccountSwitcher/translations.json', false); // false for synchronous request
-    	xmlHttp.send(null);
-		this.strings = JSON.parse(xmlHttp.responseText);
+		loadStrings();
 	}
 
 	start(){
@@ -275,7 +276,7 @@ class AccountSwitcher {
 			}
 		}
 	}
-	
+
 	loginWithToken(token, i){
 		if(token == this.UserInfoStore.getToken()){
 			NeatoLib.showToast(this.local.alreadyUsingAccount, "error");
@@ -380,10 +381,7 @@ class AccountSwitcher {
 				NeatoLib.showToast(this.local.settings.copiedToken, "success");
 			}, "margin-top:10px;"), this.getName());
 			NeatoLib.Settings.pushElement(NeatoLib.Settings.Elements.createButton(this.local.settings.fetchTranslations, e => {
-				var xmlHttp = new XMLHttpRequest();
-		    	xmlHttp.open("GET", 'https://l0c4lh057.github.io/AccountSwitcher/translations.json', false); // false for synchronous request
-		    	xmlHttp.send(null);
-				this.strings = JSON.parse(xmlHttp.responseText);
+				loadStrings();	
 				NeatoLib.showToast(this.local.settings.fetchedTranslations, "success");
 			}, "margin-left:10px;margin-top:10px;"), this.getName());
 			NeatoLib.Settings.pushElement(NeatoLib.Settings.Elements.createButton(this.local.settings.support, e => {
