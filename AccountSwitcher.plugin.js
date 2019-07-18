@@ -381,10 +381,6 @@ class AccountSwitcher {
 				document.body.removeChild(tempInput);
 				NeatoLib.showToast(this.local.settings.copiedToken, "success");
 			}, "margin-top:10px;"), this.getName());
-			NeatoLib.Settings.pushElement(NeatoLib.Settings.Elements.createButton(this.local.settings.fetchTranslations, e => {
-				loadStrings();	
-				NeatoLib.showToast(this.local.settings.fetchedTranslations, "success");
-			}, "margin-left:10px;margin-top:10px;"), this.getName());
 			NeatoLib.Settings.pushElement(NeatoLib.Settings.Elements.createButton(this.local.settings.support, e => {
 				window.open("https://l0c4lh057.github.io/discord.html");
 			}, "margin-left:20px;margin-top:10px;"), this.getName());

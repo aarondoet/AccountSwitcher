@@ -25,8 +25,6 @@
             "accountTokenPlaceholder": "Account token",
             "copyToken": "Copy token of current account",
             "copiedToken": "Token copied",
-            "fetchTranslations": "Fetch translations",
-            "fetchedTranslations": "Translations fetched!",
             "support": "Get Support",
             "passwordRequired": {
                 "title": "Password required",
@@ -78,8 +76,6 @@
             "accountTokenPlaceholder": "Account-Token",
             "copyToken": "Token des aktuellen Accounts kopieren",
             "copiedToken": "Token kopiert",
-            "fetchTranslations": "Fetch translations",
-            "fetchedTranslations": "Translations fetched!",
             "support": "Support",
             "passwordRequired": {
                 "title": "Passwort benötigt",
@@ -131,8 +127,6 @@
             "accountTokenPlaceholder": "Token de compte",
             "copyToken": "Copier le token du compte actuel",
             "copiedToken": "Token copié",
-            "fetchTranslations": "Fetch translations",
-            "fetchedTranslations": "Translations fetched!",
             "support": "Avoir le support",
             "passwordRequired": {
                 "title": "Mot de passe requis",
@@ -184,8 +178,6 @@
             "accountTokenPlaceholder": "Токен аккаунта",
             "copyToken": "Скопировать токен текущего аккаунта",
             "copiedToken": "Токен скопирован",
-            "fetchTranslations": "Обновить переводы",
-            "fetchedTranslations": "Переводы обновлены!",
             "support": "Помощь",
             "passwordRequired": {
                 "title": "Необходим пароль",
