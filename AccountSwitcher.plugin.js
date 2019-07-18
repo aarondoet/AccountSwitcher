@@ -49,8 +49,9 @@ class AccountSwitcher {
 
 	loadStrings(){
 		if (!this.strings) {
+			var xmlHttp = new XMLHttpRequest();
 			xmlHttp.open("GET", 'https://l0c4lh057.github.io/AccountSwitcher/translations.json', false); // false for synchronous request
-	    	xmlHttp.send(null);
+	    		xmlHttp.send(null);
 			this.strings = JSON.parse(xmlHttp.responseText);
 		}
 	}
