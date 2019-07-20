@@ -3,7 +3,7 @@
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "1.1.8";}
+	getVersion(){return "1.1.9";}
 	getDescription(){return this.local.plugin.description;}
 
 
@@ -107,13 +107,8 @@ class AccountSwitcher {
 		if(this.settings.lastUsedVersion != this.getVersion()){
 			this.settings.lastUsedVersion = this.getVersion();
 			if(this.settings.showChangelog)
-				this.alertText("Changelog", `1.1.7:<ul style="list-style-type:circle;padding-left:20px;">
-					<li>Added option to disable the changelog</li>
-					<li>Small changes in token handling (not encrypting empty tokens anymore -&gt; no need to enter password for empty tokens)</li>
-					<li>Option to go to login screen when token is empty</li>
-					<li>Only storing the has of the token you switched to, even though it is only saved there for a very short time</li>
-				</ul><br>1.1.8:<ul style="list-style-type:circle;padding-left:20px;">
-					<li>Fixed switching to login screen option when token is empty</li>
+				this.alertText("Changelog", `<ul style="list-style-type:circle;padding-left:20px;">
+					<li>Fixed middle clicking avatar, now opens the menu again</li>
 				</ul>`);
 		}
 		if(!this.settings.encrypted){
@@ -127,7 +122,7 @@ class AccountSwitcher {
 		this.saveSettings();
 		$(document.body).on("auxclick.accountswitcher", e => {
 			if(!e.target.hasClass) return;
-			if(!e.target.hasClass(NeatoLib.getClass(["animate", "avatarLarge", "avatarXXLarge", "inner", "status"], "inner"))) return;
+			if(!e.target.hasClass(NeatoLib.getClass(["avatar", "avatarWrapper", "container", "discriminator", "nameTag"], "avatar"))) return;
 			if(e.which == 2) this.openSwitchMenu(e);
 		});
 		this.css = NeatoLib.injectCSS(`
