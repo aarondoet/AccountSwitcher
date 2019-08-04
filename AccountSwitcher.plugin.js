@@ -1,12 +1,15 @@
-//META{"name":"AccountSwitcher","displayName":"AccountSwitcher","website":"https://twitter.com/l0c4lh057/","source":"https://github.com/l0c4lh057/AccountSwitcher/blob/master/AccountSwitcher.plugin.js"}*//
+//META{"name":"AccountSwitcher","displayName":"AccountSwitcher","website":"https://l0c4lh057.jg-p.eu/","source":"https://github.com/l0c4lh057/AccountSwitcher/blob/master/AccountSwitcher.plugin.js"}*//
+
+var passwd = null;
 
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "1.1.9";}
+	getVersion(){return "1.2.0";}
 	getDescription(){return this.local.plugin.description;}
-
-
+	
+	constructor(){}
+	
 	get defaultSettings(){
 		return {
 			language: "auto",
@@ -71,6 +74,7 @@ class AccountSwitcher {
 	}
 
 	start(){
+		passwd = null;
 		if(!document.getElementById("accountswitcher-cryptlib")){
 			let cryptLib = document.createElement("script");
 			cryptLib.id = "accountswitcher-cryptlib";
@@ -108,7 +112,7 @@ class AccountSwitcher {
 			this.settings.lastUsedVersion = this.getVersion();
 			if(this.settings.showChangelog)
 				this.alertText("Changelog", `<ul style="list-style-type:circle;padding-left:20px;">
-					<li>Fixed middle clicking avatar, now opens the menu again</li>
+					<li>Now saving password when you enter it once<br><strong>Please open the settings, type in the correct password and click in every password field without token once, then you should not get any message that the token could not be decrypted again.</strong></li>
 				</ul>`);
 		}
 		if(!this.settings.encrypted){
@@ -133,7 +137,7 @@ class AccountSwitcher {
 				background-color: #202225;
 				border-radius: 10px;
 				overflow: hidden;
-				z-index: 9001;
+				z-index: 1000;
 			}
 			.accountswitcher-accountwrapper {
 				position: relative;
@@ -254,8 +258,7 @@ class AccountSwitcher {
 			if(this.settings["token" + i] == ""){
 				this.loginWithToken("", i);
 			}else{
-				this.alertText(this.local.passwordRequired.title, this.local.passwordRequired.description, e => {
-					let pw = document.getElementById("accountswitcher-passwordinput").value;
+				let login = (pw)=>{
 					try{
 						let token = this.decrypt(this.settings["token" + i], pw);
 						if(token.length > 0 && token != this.UserInfoStore.getToken()) this.settings.switchedTo = this.hashString(this.settings["token" + i]);
@@ -264,9 +267,18 @@ class AccountSwitcher {
 					}catch(ex){
 						NeatoLib.showToast(this.formatString(this.local.couldNotDecrypt, i), "error");
 					}
-				}, e => {
-					// input cancelled
-				});
+				}
+				if(passwd == null){
+					this.alertText(this.local.passwordRequired.title, this.local.passwordRequired.description, e => {
+						let pw = document.getElementById("accountswitcher-passwordinput").value;
+						passwd = pw;
+						login(pw);
+					}, e => {
+						// input cancelled
+					});
+				}else{
+					login(passwd);
+				}
 			}
 		}
 	}
@@ -309,6 +321,7 @@ class AccountSwitcher {
 				if(enc){
 					this.alertText(this.local.settings.password.set, this.local.settings.password.setDescription, e => {
 						password = document.getElementById("accountswitcher-passwordinput").value;
+						passwd = password;
 						for(let i = 1; i < 11; i++){
 							this.settings["token" + i] = this.encrypt(this.settings["token" + i], password);
 						}
@@ -318,6 +331,7 @@ class AccountSwitcher {
 						document.getElementById("accountswitcher-encrypttokensdiv").classList.add("valueUnchecked-2lU_20");
 						document.getElementById("accountswitcher-encrypttokensdiv").classList.remove("valueChecked-m-4IJZ");
 						document.getElementById("accountswitcher-encrypttokenscheckbox").checked = false;
+						passwd = null;
 					});
 				}else{
 					this.alertText(this.local.settings.password.remove, this.local.settings.password.removeDescription, e => {
@@ -384,18 +398,35 @@ class AccountSwitcher {
 		}, 0);
 
 		if(this.settings.encrypted){
-			this.alertText(this.local.settings.passwordRequired.title, this.local.settings.passwordRequired.description, e => {
-				password = document.getElementById("accountswitcher-passwordinput").value;
+			let decrypt = () => {
 				for(let i = 1; i < 11; i++){
-					try{
-						document.getElementById("accountswitcher-account" + i).value = this.decrypt(this.settings["token" + i], password);
-					}catch(ex){
-						NeatoLib.showToast(this.formatString(this.local.couldNotDecrypt, i), "error");
+					if(this.settings["token" + i] != ""){
+						try{
+							let decrypted = this.decrypt(this.settings["token" + i], password);
+							document.getElementById("accountswitcher-account" + i).value = decrypted;
+							if(decrypted == ""){
+								NeatoLib.showToast(this.formatString(this.local.couldNotDecrypt, i), "error");
+								passwd = null;
+							}
+						}catch(ex){
+							passwd = null;
+							NeatoLib.showToast(this.formatString(this.local.couldNotDecrypt, i), "error");
+						}
 					}
 				}
-			}, e => {
-				// cancelled input
-			});
+			}
+			if(passwd == null){
+				this.alertText(this.local.settings.passwordRequired.title, this.local.settings.passwordRequired.description, e => {
+					password = document.getElementById("accountswitcher-passwordinput").value;
+					passwd = password;
+					decrypt();
+				}, e => {
+					// cancelled input
+				});
+			}else{
+				password = passwd;
+				window.setTimeout(decrypt,10);
+			}
 		}
 
 		if(global.ED && global.EDApi){
