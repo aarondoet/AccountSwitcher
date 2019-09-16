@@ -32,8 +32,9 @@
                 "title": "Password required",
                 "description": "<input id='accountswitcher-passwordinput' type='password' placeholder='Your password here'>"
             },
-            "useCurrent": "Use Current",
-			"showChangelog": "Show changelog"
+            "saveAccount": "Save Account",
+            "removeAccount": "Remove Account",
+            "showChangelog": "Show changelog"
         },
         "couldNotDecrypt": "Could not decrypt token {0}.",
         "alreadyUsingAccount": "You are already using this account",
@@ -85,8 +86,9 @@
                 "title": "Passwort benötigt",
                 "description": "<input id='accountswitcher-passwordinput' type='password' placeholder='Dein Passwort hier'>"
             },
-            "useCurrent": "Jetziger Account",
-			"showChangelog": "Changelog anzeigen"
+            "saveAccount": "Account speichern",
+            "removeAccount": "Account entfernen",
+            "showChangelog": "Changelog anzeigen"
         },
         "couldNotDecrypt": "Token {0} konnte nicht entschlüsselt werden.",
         "alreadyUsingAccount": "Du benutzt diesen Account bereits",
@@ -138,8 +140,9 @@
                 "title": "Mot de passe requis",
                 "description": "<input id='accountswitcher-passwordinput' type='password' placeholder='Votre mot de passe ici'>"
             },
-            "useCurrent": "Utilisation actuelle",
-			"showChangelog": "Show changelog"
+            "saveAccount": "Save Account",
+            "removeAccount": "Remove Account",
+            "showChangelog": "Show changelog"
         },
         "couldNotDecrypt": "Impossible de décrypter les jetons {0}.",
         "alreadyUsingAccount": "Vous utilisez déjà ce compte",
@@ -191,8 +194,9 @@
                 "title": "Необходим пароль",
                 "description": "<input id='accountswitcher-passwordinput' type='password' placeholder='Пароль'>"
             },
-            "useCurrent": "Использовать этот",
-			"showChangelog": "Показывать список изменений"
+            "saveAccount": "Save Account",
+            "removeAccount": "Remove Account",
+            "showChangelog": "Показывать список изменений"
         },
         "couldNotDecrypt": "Не удалось расшифровать токен аккаунта {0}.",
         "alreadyUsingAccount": "Вы уже используете этот аккаунт",
