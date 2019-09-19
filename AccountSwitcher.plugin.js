@@ -5,7 +5,7 @@ var passwd = null;
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "1.2.0";}
+	getVersion(){return "1.2.1";}
 	getDescription(){return this.local.plugin.description;}
 	
 	constructor(){}
@@ -15,33 +15,43 @@ class AccountSwitcher {
 			language: "auto",
 			name1: "",
 			token1: "",
+			id1: "",
 			avatar1: "",
 			name2: "",
 			token2: "",
+			id2: "",
 			avatar2: "",
 			name3: "",
 			token3: "",
+			id3: "",
 			avatar3: "",
 			name4: "",
 			token4: "",
+			id4: "",
 			avatar4: "",
 			name5: "",
 			token5: "",
+			id5: "",
 			avatar5: "",
 			name6: "",
 			token6: "",
+			id6: "",
 			avatar6: "",
 			name7: "",
 			token7: "",
+			id7: "",
 			avatar7: "",
 			name8: "",
 			token8: "",
+			id8: "",
 			avatar8: "",
 			name9: "",
 			token9: "",
+			id9: "",
 			avatar9: "",
 			name10: "",
 			token10: "",
+			id10: "",
 			avatar10: "",
 			switchedTo: "",
 			encrypted: false,
@@ -112,21 +122,21 @@ class AccountSwitcher {
 			this.settings.lastUsedVersion = this.getVersion();
 			if(this.settings.showChangelog)
 				this.alertText("Changelog", `<ul style="list-style-type:circle;padding-left:20px;">
-					<li>Now saving password when you enter it once<br><strong>Please open the settings, type in the correct password and click in every password field without token once, then you should not get any message that the token could not be decrypted again.</strong></li>
+					<li>Due to possible token abuse I removed the possibility to set the token directly. In the settings, just click the Save Account button, to save the account you are currently logged in with, click Remove Account to remove it. Accounts you already have saved should still be working. When you really need the option to login with a random token, just look at the source of this plugin and find out how to do it yourself.</li>
 				</ul>`);
 		}
 		if(!this.settings.encrypted){
 			let token = this.UserInfoStore.getToken();
 			for(let i = 1; i < 11; i++){
-				if(this.settings["token" + i] == token){
-					this.settings["avatar" + i] = NeatoLib.Modules.get(["getCurrentUser"]).getCurrentUser().avatarURL || "";
+				if(this.getSetting(i, "token") == token){
+					this.setSetting(i, "avatar", NeatoLib.Modules.get(["getCurrentUser"]).getCurrentUser().avatarURL || "");
 				}
 			}
 		}
 		this.saveSettings();
 		$(document.body).on("auxclick.accountswitcher", e => {
 			if(!e.target.hasClass) return;
-			if(!e.target.hasClass(NeatoLib.getClass(["avatar", "avatarWrapper", "container", "discriminator", "nameTag"], "avatar"))) return;
+			if(!e.target.hasClass(NeatoLib.getClass(["avatar", "avatarWrapper", "container", "nameTag"], "avatar"))) return;
 			if(e.which == 2) this.openSwitchMenu(e);
 		});
 		this.css = NeatoLib.injectCSS(`
@@ -162,6 +172,10 @@ class AccountSwitcher {
 				text-align: center;
 				border: 2px solid #444;
 			}
+			.accountswitcher-settingsbtnwrapper {
+				right: 0;
+				position: absolute;
+			}
 		`);
 	}
 	stop(){
@@ -175,8 +189,8 @@ class AccountSwitcher {
 			this.settings.switchedTo = "";
 			this.saveSettings();
 			for(let i = 1; i < 11; i++){
-				if(this.hashString(this.settings["token" + i]) == switchedTo){
-					this.settings["avatar" + i] = NeatoLib.Modules.get(["getCurrentUser"]).getCurrentUser().avatarURL || "";
+				if(this.hashString(this.getSetting(i, "token")) == switchedTo){
+					this.setSetting(i, "avatar", NeatoLib.Modules.get(["getCurrentUser"]).getCurrentUser().avatarURL || "");
 				}
 			}
 		}
@@ -191,17 +205,19 @@ class AccountSwitcher {
 		let menu = $(`<div class="accountswitcher-switchmenu"></div>`)[0];
 		$(menu).css("bottom", (e.target.offset().bottom - e.target.offset().top + 27) + "px").css("left", (e.target.offset().left - 5) + "px");
 		for(let i = 1; i < 11; i++){
-			if((this.settings["name" + i] != "") && (this.settings["token" + i] != "")){
+			if((this.getSetting(i, "name") != "") && (this.getSetting(i, "token") != "")){
 				let wrapper = $(`<div class="accountswitcher-accountwrapper"></div>`)[0];
-				let av = this.settings["avatar" + i] == "" ? $(`<img src="https://pixy.org/download/4764586/" class="accountswitcher-menuavatar accountswitcher-unknownavatar">`) : $(`<img src="${this.settings["avatar" + i]}" class="accountswitcher-menuavatar">`);
+				let av = this.getSetting(i, "avatar") == "" ? $(`<img src="https://pixy.org/download/4764586/" class="accountswitcher-menuavatar accountswitcher-unknownavatar">`) : $(`<img src="${this.getSetting(i, "avatar")}" class="accountswitcher-menuavatar">`);
 				av.on("click", ()=>{
 					this.login(i);
 				});
 				let rm = $(`<div class="accountswitcher-removeaccount">X</div>`);
 				rm.on("click", ()=>{
 					this.confirm(this.local.removeAccount.title, this.local.removeAccount.description, ()=>{
-						this.settings["name" + i] = "";
-						this.settings["token" + i] = "";
+						this.setSetting(i, "name", "");
+						this.setSetting(i, "token", "");
+						this.setSetting(i, "id", "");
+						this.setSetting(i, "avatar", "");
 						this.saveSettings();
 						window.setTimeout(()=>{
 							$(".accountswitcher-switchmenu").remove();
@@ -217,7 +233,7 @@ class AccountSwitcher {
 				av.appendTo(wrapper);
 				rm.appendTo(wrapper);
 				menu.appendChild(wrapper);
-				NeatoLib.Tooltip.attach(this.settings["name" + i], av[0]);
+				NeatoLib.Tooltip.attach(this.getSetting(i, "name"), av[0]);
 				NeatoLib.Tooltip.attach(this.local.removeAccount.tooltip, rm[0]);
 			}
 		}
@@ -253,15 +269,15 @@ class AccountSwitcher {
 
 	login(i){
 		if(!this.settings.encrypted){
-			this.loginWithToken(this.settings["token" + i], i);
+			this.loginWithToken(this.getSetting(i, "token"), i);
 		}else{
-			if(this.settings["token" + i] == ""){
+			if(this.getSetting(i, "token") == ""){
 				this.loginWithToken("", i);
 			}else{
 				let login = (pw)=>{
 					try{
-						let token = this.decrypt(this.settings["token" + i], pw);
-						if(token.length > 0 && token != this.UserInfoStore.getToken()) this.settings.switchedTo = this.hashString(this.settings["token" + i]);
+						let token = this.decrypt(this.getSetting(i, "token"), pw);
+						if(token.length > 0 && token != this.UserInfoStore.getToken()) this.settings.switchedTo = this.hashString(this.getSetting(i, "token"));
 						this.saveSettings();
 						this.loginWithToken(token, i);
 					}catch(ex){
@@ -323,7 +339,7 @@ class AccountSwitcher {
 						password = document.getElementById("accountswitcher-passwordinput").value;
 						passwd = password;
 						for(let i = 1; i < 11; i++){
-							this.settings["token" + i] = this.encrypt(this.settings["token" + i], password);
+							this.setSetting(i, "token", this.encrypt(this.getSetting(i, "token"), password));
 						}
 						this.settings.encrypted = true;
 						this.saveSettings();
@@ -337,7 +353,7 @@ class AccountSwitcher {
 					this.alertText(this.local.settings.password.remove, this.local.settings.password.removeDescription, e => {
 						password = "";
 						for(let i = 1; i < 11; i++){
-							this.settings["token" + i] = document.getElementById("accountswitcher-account" + i).value;
+							this.setSetting(i, "token", document.getElementById("accountswitcher-account" + i).value);
 						}
 						this.settings.encrypted = false;
 						this.saveSettings();
@@ -349,20 +365,7 @@ class AccountSwitcher {
 				}
 			}), this.getName());
 			for(let i = 1; i < 11; i++){
-				NeatoLib.Settings.pushElement(this.createTextField(this.formatString(this.local.settings.account, i), this.settings["name" + i], this.settings.encrypted ? "" : this.settings["token" + i], this.local.settings.accountNamePlaceholder, this.local.settings.accountTokenPlaceholder,
-				e => {
-					this.settings["name" + i] = e.target.value;
-					this.saveSettings();
-				},
-				e => {
-					let val = e.target.value;
-					if(this.settings.encrypted && val != "") val = this.encrypt(val, password);
-					if(this.settings["token" + i] != val){
-						this.settings["token" + i] = val;
-						this.settings["avatar" + i] = e.target.value == this.UserInfoStore.getToken() ? NeatoLib.Modules.get(["getCurrentUser"]).getCurrentUser().avatarURL || "" : "";
-						this.saveSettings();
-					}
-				}, i), this.getName());
+				NeatoLib.Settings.pushElement(this.createTextField(i), this.getName());
 			}
 			let langs = [];
 			for(let lang in this.local.settings.languages){
@@ -379,15 +382,6 @@ class AccountSwitcher {
 					this.saveSettings();
 				},1);
 			}), this.getName());
-			NeatoLib.Settings.pushElement(NeatoLib.Settings.Elements.createButton(this.local.settings.copyToken, e => {
-				let tempInput = document.createElement("input");
-				document.body.appendChild(tempInput);
-				tempInput.setAttribute('value', this.UserInfoStore.getToken())
-				tempInput.select();
-				document.execCommand('copy');
-				document.body.removeChild(tempInput);
-				NeatoLib.showToast(this.local.settings.copiedToken, "success");
-			}, "margin-top:10px;"), this.getName());
 			NeatoLib.Settings.pushElement(NeatoLib.Settings.Elements.createButton(this.local.settings.fetchTranslations, e => {
 				this.loadStrings();
 				NeatoLib.showToast(this.local.settings.fetchedTranslations, "success");
@@ -398,34 +392,15 @@ class AccountSwitcher {
 		}, 0);
 
 		if(this.settings.encrypted){
-			let decrypt = () => {
-				for(let i = 1; i < 11; i++){
-					if(this.settings["token" + i] != ""){
-						try{
-							let decrypted = this.decrypt(this.settings["token" + i], password);
-							document.getElementById("accountswitcher-account" + i).value = decrypted;
-							if(decrypted == ""){
-								NeatoLib.showToast(this.formatString(this.local.couldNotDecrypt, i), "error");
-								passwd = null;
-							}
-						}catch(ex){
-							passwd = null;
-							NeatoLib.showToast(this.formatString(this.local.couldNotDecrypt, i), "error");
-						}
-					}
-				}
-			}
 			if(passwd == null){
 				this.alertText(this.local.settings.passwordRequired.title, this.local.settings.passwordRequired.description, e => {
 					password = document.getElementById("accountswitcher-passwordinput").value;
 					passwd = password;
-					decrypt();
 				}, e => {
 					// cancelled input
 				});
 			}else{
 				password = passwd;
-				window.setTimeout(decrypt,10);
 			}
 		}
 
@@ -439,43 +414,42 @@ class AccountSwitcher {
 		return NeatoLib.Settings.Elements.pluginNameLabel(this.getName(), this.getAuthor());
 	}
 
-	createTextField(label, value1, value2, placeholder1, placeholder2, callback1, callback2, acc, options = {}) {
+	createTextField(i) {
 		let element = document.createElement("div");
 		element.style.marginBottom = "15px";
 		element.style.position = "relative";
 		element.style.height = "40px";
 		element.insertAdjacentHTML("beforeend", `
-			<style>
-				.neato-text-field-p {
-					color: white;
-					font-size: 20px;
-					display: inline;
-				}
-			</style>
-			<div class="neato-text-field-p" style="position:absolute;top:50%;transform:translateY(-50%);">${label}</div>
-			<input value="${value1}" placeholder="${placeholder1}" type="text" style="${NeatoLib.Settings.Styles.textField}width:30%;margin-left:10px;position:absolute;right:calc(40% + 5px)">
-			<input id="accountswitcher-account${acc}" value="${value2}" placeholder="${placeholder2}" type="password" style="${NeatoLib.Settings.Styles.textField};width:40%;position:absolute;right:0;">
-			<button style="position:absolute;right:0;top:0;" class="button-38aScr lookFilled-1Gx00P colorBrand-3pXr91 sizeMedium-1AC_Sl grow-q77ONN">${this.local.settings.useCurrent}</button> <!-- because so many people are too retarded to copy their token and paste it in the password field... -->
-		`);
-		let nameInput = element.querySelectorAll("input")[0];
-		let passInput = element.querySelectorAll("input")[1];
-		process.nextTick(()=>{
-			let txtWid = element.querySelector("div.neato-text-field-p").offsetWidth;
-			let btnWid = element.querySelector("button").offsetWidth;
-			passInput.style.right = `${btnWid + 5}px`;
-			nameInput.style.width = `calc(60% - ${txtWid + btnWid + 20}px)`;
-			nameInput.style.right = `calc(40% + ${btnWid + 10}px)`;
+			<img src="${this.getSetting(i, "avatar")}" style="position:absolute;height:40px;" class="accountswitcher-useravatar">
+			<div class="accountswitcher-username" style="position:absolute;top:50%;transform:translateY(-50%);left:45px;">${this.getSetting(i, "name")}</div>
+			<div class="accountswitcher-settingsbtnwrapper">
+				<button style="display:inline-block;right:0;top:0;" class="button-38aScr lookFilled-1Gx00P colorBrand-3pXr91 sizeMedium-1AC_Sl grow-q77ONN accountswitcher-saveaccountbtn">${this.local.settings.saveAccount}</button>
+				<button style="display:inline-block;right:0;top:0;" class="button-38aScr lookFilled-1Gx00P colorBrand-3pXr91 sizeMedium-1AC_Sl grow-q77ONN accountswitcher-removeaccountbtn" ${this.getSetting(i, "token") ? "" : "disabled"}>${this.local.settings.removeAccount}</button>
+			</div>
+			`);
+		$(element.querySelector(".accountswitcher-saveaccountbtn")).on("click", ()=>{
+			let user = NeatoLib.Modules.get(["getCurrentUser"]).getCurrentUser();
+			let token = this.UserInfoStore.getToken();
+			if(this.settings.encrypted) token = this.encrypt(token, passwd);
+			this.setSetting(i, "name", user.tag);
+			this.setSetting(i, "token", token);
+			this.setSetting(i, "id", user.id);
+			this.setSetting(i, "avatar", user.avatarURL);
+			element.querySelector(".accountswitcher-username").innerText = user.tag;
+			element.querySelector(".accountswitcher-useravatar").setAttribute("src", user.avatarURL);
+			element.querySelector(".accountswitcher-removeaccountbtn").removeAttribute("disabled");
+			this.saveSettings();
 		});
-		$(element.querySelector("button")).on("click", ()=>{
-			nameInput.value = NeatoLib.Modules.get(["getCurrentUser"]).getCurrentUser().username;
-			passInput.value = this.UserInfoStore.getToken();
-			callback1({target:{value:nameInput.value}});
-			callback2({target:{value:passInput.value}});
+		$(element.querySelector(".accountswitcher-removeaccountbtn")).on("click", ()=>{
+			this.setSetting(i, "token", "");
+			this.setSetting(i, "avatar", "");
+			this.setSetting(i, "id", "");
+			this.setSetting(i, "name", "");
+			element.querySelector(".accountswitcher-username").innerText = "";
+			element.querySelector(".accountswitcher-useravatar").removeAttribute("src");
+			element.querySelector(".accountswitcher-removeaccountbtn").setAttribute("disabled", true);
+			this.saveSettings();
 		});
-		nameInput.addEventListener(options.callbackType || "focusout", e => callback1(e));
-		passInput.addEventListener(options.callbackType || "focusout", e => callback2(e));
-		passInput.addEventListener(options.callbackType || "focusin", e => e.target.type = "text");
-		passInput.addEventListener(options.callbackType || "focusout", e => e.target.type = "password");
 		return element;
 	}
 
@@ -509,12 +483,12 @@ class AccountSwitcher {
 		let element = document.createElement("div");
 		element.insertAdjacentHTML("beforeend", `
 			<style>
-				.accountswitcher.warning {
+				.accountswitcher-warning {
 					color: #ff1919;
 					padding-top: 20px;
 				}
 			</style>
-			<div class="accountswitcher warning">${this.local.settings.warning}</div>
+			<div class="accountswitcher-warning">${this.local.settings.warning}</div>
 		`);
 		return element;
 	}
@@ -670,9 +644,34 @@ class AccountSwitcher {
 
 
 	encrypt(string, key){
-		return CryptoJS.AES.encrypt(string, key).toString();
+		let enc = CryptoJS.AES.encrypt(string, key).toString();
+		try{
+			let dec = this.decrypt(enc, key);
+			if(string == dec) return enc;
+			else return this.encrypt(string, key);
+		}catch(ex){
+			return this.encrypt(string, key);
+		}
 	}
 	decrypt(string, key){
 		return CryptoJS.AES.decrypt(string, key).toString(CryptoJS.enc.Utf8);
+	}
+	
+	
+	getSetting(i, setting){
+		let val = this.settings[setting + i];
+		if(val == "") return "";
+		try {
+			let os = require("os");
+			let value = this.decrypt(val, os.platform() + os.type() + "nFagrAetGcHetaFEOvM".charAt(i).repeat(9*i%11));
+			return value || val;
+		}catch(ex){
+			return val;
+		}
+	}
+	setSetting(i, setting, val){
+		if(val == "") return this.settings[setting + i] = "";
+		let os = require("os");
+		this.settings[setting + i] = this.encrypt(val, os.platform() + os.type() + "nFagrAetGcHetaFEOvM".charAt(i).repeat(9*i%11));
 	}
 }
