@@ -5,7 +5,7 @@ var passwd = null;
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "1.2.1";}
+	getVersion(){return "1.2.2";}
 	getDescription(){return this.local.plugin.description;}
 	
 	constructor(){}
@@ -56,7 +56,8 @@ class AccountSwitcher {
 			switchedTo: "",
 			encrypted: false,
 			showChangelog: true,
-			lastUsedVersion: "0.0.0"
+			lastUsedVersion: "0.0.0",
+			encTest: "test"
 		}
 	}
 
@@ -123,6 +124,7 @@ class AccountSwitcher {
 			if(this.settings.showChangelog)
 				this.alertText("Changelog", `<ul style="list-style-type:circle;padding-left:20px;">
 					<li>Due to possible token abuse I removed the possibility to set the token directly. In the settings, just click the Save Account button, to save the account you are currently logged in with, click Remove Account to remove it. Accounts you already have saved should still be working. When you really need the option to login with a random token, just look at the source of this plugin and find out how to do it yourself.</li>
+					<li>Disabling encryption should work again now</li>
 				</ul>`);
 		}
 		if(!this.settings.encrypted){
@@ -177,23 +179,27 @@ class AccountSwitcher {
 				position: absolute;
 			}
 		`);
+		
+		if(this.settings.encTest == "test" && this.settings.encrypted){
+			this.alertText("Please type in your password", "Changes in the plugin require you to type in your password again.<br>Password: <input id='as-pw1'><br>Repead password: <input id='as-pw2'>", ()=>{
+				let pw1 = document.getElementById("as-pw1").value;
+				let pw2 = document.getElementById("as-pw2").value;
+				if(pw1 == pw2){
+					passwd = pw1;
+					this.settings.encTest = this.encrypt("test", pw1);
+					this.saveSettings();
+				}else{
+					this.alertText("Passwords don't match", "Please reload the plugin and type in your password again.");
+				}
+			}, ()=>{
+				this.alertText("Type in your password", "Typing in your password is required. Restart the plugin and type in your password, otherwise it could happen, that you can't use accounts that are already saved after the next update.");
+			})
+		}
 	}
 	stop(){
 		this.css.destroy();
 		this.unregisterKeybinds();
 		$(document.body).off("auxclick.accountswitcher");
-	}
-	onSwitch(){
-		if(this.settings.switchedTo != ""){
-			let switchedTo = this.settings.switchedTo;
-			this.settings.switchedTo = "";
-			this.saveSettings();
-			for(let i = 1; i < 11; i++){
-				if(this.hashString(this.getSetting(i, "token")) == switchedTo){
-					this.setSetting(i, "avatar", NeatoLib.Modules.get(["getCurrentUser"]).getCurrentUser().avatarURL || "");
-				}
-			}
-		}
 	}
 
 	saveSettings() {
@@ -277,7 +283,11 @@ class AccountSwitcher {
 				let login = (pw)=>{
 					try{
 						let token = this.decrypt(this.getSetting(i, "token"), pw);
-						if(token.length > 0 && token != this.UserInfoStore.getToken()) this.settings.switchedTo = this.hashString(this.getSetting(i, "token"));
+						if(token == ""){
+							this.alertText("Could not decrypt token", "The token could not be decrypted. Please make sure you typed in the correct password.");
+							passwd = null;
+							return;
+						}
 						this.saveSettings();
 						this.loginWithToken(token, i);
 					}catch(ex){
@@ -338,10 +348,19 @@ class AccountSwitcher {
 					this.alertText(this.local.settings.password.set, this.local.settings.password.setDescription, e => {
 						password = document.getElementById("accountswitcher-passwordinput").value;
 						passwd = password;
+						if(this.decrypt(this.settings.encTest, password) != "test"){
+							this.alertText("Could not decrypt token", "The token could not be decrypted. Please make sure you typed in the correct password.");
+							passwd = null;
+							document.getElementById("accountswitcher-encrypttokensdiv").classList.add("valueUnchecked-2lU_20");
+							document.getElementById("accountswitcher-encrypttokensdiv").classList.remove("valueChecked-m-4IJZ");
+							document.getElementById("accountswitcher-encrypttokenscheckbox").checked = false;
+							return;
+						}
 						for(let i = 1; i < 11; i++){
 							this.setSetting(i, "token", this.encrypt(this.getSetting(i, "token"), password));
 						}
 						this.settings.encrypted = true;
+						this.settings.encTest = this.encrypt("test", password);
 						this.saveSettings();
 					}, e => {
 						document.getElementById("accountswitcher-encrypttokensdiv").classList.add("valueUnchecked-2lU_20");
@@ -351,11 +370,13 @@ class AccountSwitcher {
 					});
 				}else{
 					this.alertText(this.local.settings.password.remove, this.local.settings.password.removeDescription, e => {
-						password = "";
 						for(let i = 1; i < 11; i++){
-							this.setSetting(i, "token", document.getElementById("accountswitcher-account" + i).value);
+							this.setSetting(i, "token", this.decrypt(this.getSetting(i, "token"), passwd));
 						}
+						password = "";
+						passwd = null;
 						this.settings.encrypted = false;
+						this.settings.encTest = "test";
 						this.saveSettings();
 					}, e => {
 						document.getElementById("accountswitcher-encrypttokensdiv").classList.remove("valueUnchecked-2lU_20");
@@ -396,6 +417,11 @@ class AccountSwitcher {
 				this.alertText(this.local.settings.passwordRequired.title, this.local.settings.passwordRequired.description, e => {
 					password = document.getElementById("accountswitcher-passwordinput").value;
 					passwd = password;
+					if(this.decrypt(this.settings.encTest, password) != "test"){
+						this.alertText("Could not decrypt token", "The token could not be decrypted. Please make sure you typed in the correct password.");
+						passwd = null;
+						return;
+					}
 				}, e => {
 					// cancelled input
 				});
@@ -660,6 +686,7 @@ class AccountSwitcher {
 	
 	getSetting(i, setting){
 		let val = this.settings[setting + i];
+		if(typeof val != "string") return val;
 		if(val == "") return "";
 		try {
 			let os = require("os");
@@ -671,6 +698,7 @@ class AccountSwitcher {
 	}
 	setSetting(i, setting, val){
 		if(val == "") return this.settings[setting + i] = "";
+		if(typeof val != "string") return this.settings[setting + i] = val;
 		let os = require("os");
 		this.settings[setting + i] = this.encrypt(val, os.platform() + os.type() + "nFagrAetGcHetaFEOvM".charAt(i).repeat(9*i%11));
 	}
