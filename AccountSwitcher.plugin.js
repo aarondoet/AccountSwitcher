@@ -5,7 +5,7 @@ var passwd = null;
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "1.2.2";}
+	getVersion(){return "1.2.3";}
 	getDescription(){return this.local.plugin.description;}
 	
 	constructor(){}
@@ -123,6 +123,8 @@ class AccountSwitcher {
 			this.settings.lastUsedVersion = this.getVersion();
 			if(this.settings.showChangelog)
 				this.alertText("Changelog", `<ul style="list-style-type:circle;padding-left:20px;">
+					<li>Enabling encryption should work again now</li>
+					<br>
 					<li>Due to possible token abuse I removed the possibility to set the token directly. In the settings, just click the Save Account button, to save the account you are currently logged in with, click Remove Account to remove it. Accounts you already have saved should still be working. When you really need the option to login with a random token, just look at the source of this plugin and find out how to do it yourself.</li>
 					<li>Disabling encryption should work again now</li>
 				</ul>`);
@@ -348,14 +350,6 @@ class AccountSwitcher {
 					this.alertText(this.local.settings.password.set, this.local.settings.password.setDescription, e => {
 						password = document.getElementById("accountswitcher-passwordinput").value;
 						passwd = password;
-						if(this.decrypt(this.settings.encTest, password) != "test"){
-							this.alertText("Could not decrypt token", "The token could not be decrypted. Please make sure you typed in the correct password.");
-							passwd = null;
-							document.getElementById("accountswitcher-encrypttokensdiv").classList.add("valueUnchecked-2lU_20");
-							document.getElementById("accountswitcher-encrypttokensdiv").classList.remove("valueChecked-m-4IJZ");
-							document.getElementById("accountswitcher-encrypttokenscheckbox").checked = false;
-							return;
-						}
 						for(let i = 1; i < 11; i++){
 							this.setSetting(i, "token", this.encrypt(this.getSetting(i, "token"), password));
 						}
@@ -370,6 +364,14 @@ class AccountSwitcher {
 					});
 				}else{
 					this.alertText(this.local.settings.password.remove, this.local.settings.password.removeDescription, e => {
+						if(this.decrypt(this.settings.encTest, password) != "test"){
+							this.alertText("Could not decrypt token", "The token could not be decrypted. Please make sure you typed in the correct password.");
+							passwd = null;
+							document.getElementById("accountswitcher-encrypttokensdiv").classList.add("valueUnchecked-2lU_20");
+							document.getElementById("accountswitcher-encrypttokensdiv").classList.remove("valueChecked-m-4IJZ");
+							document.getElementById("accountswitcher-encrypttokenscheckbox").checked = false;
+							return;
+						}
 						for(let i = 1; i < 11; i++){
 							this.setSetting(i, "token", this.decrypt(this.getSetting(i, "token"), passwd));
 						}
