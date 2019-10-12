@@ -5,7 +5,7 @@ var passwd = null;
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "1.2.3";}
+	getVersion(){return "1.2.4";}
 	getDescription(){return this.local.plugin.description;}
 	
 	constructor(){}
@@ -123,10 +123,7 @@ class AccountSwitcher {
 			this.settings.lastUsedVersion = this.getVersion();
 			if(this.settings.showChangelog)
 				this.alertText("Changelog", `<ul style="list-style-type:circle;padding-left:20px;">
-					<li>Enabling encryption should work again now</li>
-					<br>
-					<li>Due to possible token abuse I removed the possibility to set the token directly. In the settings, just click the Save Account button, to save the account you are currently logged in with, click Remove Account to remove it. Accounts you already have saved should still be working. When you really need the option to login with a random token, just look at the source of this plugin and find out how to do it yourself.</li>
-					<li>Disabling encryption should work again now</li>
+					<li>Popouts should work again (idk if something else if broken, if something is not working for you, please search for AccountSwitcher in the plugin list and click on Support Server, then state the problem in #support)</li>
 				</ul>`);
 		}
 		if(!this.settings.encrypted){
@@ -566,8 +563,8 @@ class AccountSwitcher {
 				backdrop.remove();
 			//}, 300)
 		});
-		backdrop.appendTo("#app-mount > div[data-no-focus-lock='true'] > div[class*='theme-']:not([class*='popouts-']):not([class*='layerContainer-'])");
-		a.appendTo("#app-mount > div[data-no-focus-lock='true'] > div[class*='theme-']:not([class*='popouts-']):not([class*='layerContainer-'])");
+		backdrop.appendTo("#app-mount > div[data-no-focus-lock='true'] > div:not([class])");
+		a.appendTo("#app-mount > div[data-no-focus-lock='true'] > div:not([class])");
 		if(a.find("#accountswitcher-passwordinput")){
 			a.find("#accountswitcher-passwordinput").on("keydown", e => {
 				if(e.which == 13) a.find(".da-footer button").click();
@@ -634,8 +631,8 @@ class AccountSwitcher {
 				backdrop.remove();
 			}, 300)
 		});
-		backdrop.appendTo("#app-mount > div[data-no-focus-lock='true'] > div[class*='theme-']:not([class*='popouts-']):not([class*='layerContainer-'])");
-		a.appendTo("#app-mount > div[data-no-focus-lock='true'] > div[class*='theme-']:not([class*='popouts-']):not([class*='layerContainer-'])");
+		backdrop.appendTo("#app-mount > div[data-no-focus-lock='true'] > div:not([class])");
+		a.appendTo("#app-mount > div[data-no-focus-lock='true'] > div:not([class])");
 		if(a.find("#accountswitcher-passwordinput")){
 			a.find("#accountswitcher-passwordinput").on("keydown", e => {
 				if(e.which == 13) a.find(".da-footer button").click();
