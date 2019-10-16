@@ -238,7 +238,7 @@
             "account": "アカウント {0}",
             "password": {
                 "set": "パスワードを設定",
-                "setDescription": "このプラグインを使用する際はパスワードを設定してください。もしもパスワードを忘れた場合、トークンを復号化することはできません。.<br><input id='accountswitcher-passwordinput' type='password' placeholder='ここにパスワードを入力してください'>",
+                "setDescription": "このプラグインを使用する際はパスワードを設定してください。もしもパスワードを忘れた場合、トークンを復号化することはできません。<br><input id='accountswitcher-passwordinput' type='password' placeholder='パスワードを入力'>",
                 "remove": "パスワードを削除する",
                 "removeDescription": "パスワードを削除しますか？すべてのトークンは暗号化されてない状態で保存されるようになります。<br>このリスクが理解できてなお暗号化を解除する場合は Okay と書かれたボタンを押してください<br> 暗号化を解除したくない場合はこのポップアップの外を押してください(一回だけでいいよ！)"
             },
@@ -251,9 +251,9 @@
             "support": "サポート(日本語のサポートは無いから気をつけてね)",
             "passwordRequired": {
                 "title": "パスワードを入力してください",
-                "description": "<input id='accountswitcher-passwordinput' type='password' placeholder='ここにパスワードを入力してください'>"
+                "description": "<input id='accountswitcher-passwordinput' type='password' placeholder='パスワードを入力'>"
             },
-            "saveAccount": "セーブ",
+            "saveAccount": "保存",
             "removeAccount": "削除",
             "showChangelog": "変更履歴を表示"
         },
@@ -262,7 +262,7 @@
         "invalidToken": "このトークンは無効化されています。",
         "passwordRequired": {
             "title": "パスワードを入力してください",
-            "description": "アカウントを切り替えるには一度設定したパスワードが必要になります。<br>もしもあなたがパスワードを忘れたのなら暗号化されたトークンを復号化することは<br><input id='accountswitcher-passwordinput' type='password' placeholder='Your password here'>"
+            "description": "アカウントを切り替えるには一度設定したパスワードが必要になります。<br>もしもあなたがパスワードを忘れたのなら暗号化されたトークンを復号化することはできません。<br><input id='accountswitcher-passwordinput' type='password' placeholder='パスワードを入力'>"
         },
         "removeAccount": {
             "title": "アカウントを削除する",
