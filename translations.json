@@ -240,7 +240,7 @@
                 "set": "パスワードを設定",
                 "setDescription": "このプラグインを使用する際はパスワードを設定してください。もしもパスワードを忘れた場合、トークンを復号化することはできません。.<br><input id='accountswitcher-passwordinput' type='password' placeholder='ここにパスワードを入力してください'>",
                 "remove": "パスワードを削除する",
-                "removeDescription": "パスワードを削除しますか？すべてのトークンは暗号化されてない状態で保存されるようになります。<br>このリスクが理解できてなお暗号化を解除する場合は 解除 と書かれたボタンを押してください(そんなことをするなんてとんでもない) 暗号化を解除したくない場合はこのポップアップの外を押してください(一回だけでいいよ！)"
+                "removeDescription": "パスワードを削除しますか？すべてのトークンは暗号化されてない状態で保存されるようになります。<br>このリスクが理解できてなお暗号化を解除する場合は Okay と書かれたボタンを押してください<br> 暗号化を解除したくない場合はこのポップアップの外を押してください(一回だけでいいよ！)"
             },
             "accountNamePlaceholder": "名前",
             "accountTokenPlaceholder": "トークン",
@@ -253,8 +253,8 @@
                 "title": "パスワードを入力してください",
                 "description": "<input id='accountswitcher-passwordinput' type='password' placeholder='ここにパスワードを入力してください'>"
             },
-            "saveAccount": "アカウントをセーブ",
-            "removeAccount": "アカウントを記録上から削除(Discordからは削除されないよ！)",
+            "saveAccount": "セーブ",
+            "removeAccount": "削除",
             "showChangelog": "変更履歴を表示"
         },
         "couldNotDecrypt": "トークンの復号化に失敗しました。 {0}.",
