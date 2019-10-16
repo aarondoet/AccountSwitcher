@@ -10,6 +10,7 @@
                 "de": {"name":"German","translator":"l0c4lh057"},
                 "fr": {"name":"French","translator":"Dark Mood"},
                 "ru": {"name":"Russian","translator":"•MGC•Mr_ChAI#7272"},
+                "ja": {"name":"Japanese","translator":"Near"},
                 "auto": {"name":"Detect automatically"}
             },
             "warning": "Do <strong>NOT</strong> share any of your tokens with someone else. Otherwise they can use your account with all actions that don't need a password. This can't be prevented by 2fa.<br>If you think someone has your token, enable 2fa and change your password. For both actions your account will get a new token. But don't forget to change the token in this settings!<br><br>PLEASE SET A PASSWORD BY ENABLING ENCRYPTION! If you don't do this, all your tokens will be saved in clear text. Every plugin and every program on your computer can access the file and all your tokens could get public at once. If you activate encryption all tokens will be encrypted with your password as key. You will need to enter your password every time you open the settings and every time you want to change your account.",
@@ -64,6 +65,7 @@
                 "de": {"name":"Deutsch","translator":"l0c4lh057"},
                 "fr": {"name":"Französisch","translator":"Dark Mood"},
                 "ru": {"name":"Russian","translator":"•MGC•Mr_ChAI#7272"},
+                "ja": {"name":"Japanisch","translator":"Near"},
                 "auto": {"name":"Automatisch erkennen"}
             },
             "warning": "Teil deine Account-Tokens <strong>NIEMALS</strong> mit jemand anderem! Dadurch könnten diese deinen Account mit allen Funktionen, die keine Bestätigung per Passwort benötigen, nutzen. Das kann auch nicht mit 2FA verhindert werden.<br>Wenn du denkst, dass jemand deinen Token hat, aktiviere 2FA und änder dein Passwort. Für beide Aktionen sollte dein Account einen neuen Token bekommen. Vergiss aber nicht, den Token in den Einstellungen dieses Plugins zu ändern.<br><br>BITTE SETZ EIN PASSWORT, INDEM DU VERSCHLÜSSELUNG AKTIVIERST! Wenn du das nicht tust, werden alle Tokens in Klartext gespeichert. Jedes Plugin und jedes Programm auf deinem Computer kann auf die Datei und damit auf alle Tokens zugreifen, wodurch diese alle mit einem Mal öffentlich geraten können. Wenn du Verschlüsselung aktivierst, werden alle Tokens mit dem eingegebenen Passwort verschlüsselt. Jedes Mal, wenn auf einen Token zugegriffen wird (Einstellungen öffnen/Account wechseln), musst du dieses Passwort wieder eingeben.",
@@ -118,6 +120,7 @@
                 "de": {"name":"German","translator":"l0c4lh057"},
                 "fr": {"name":"French","translator":"Dark Mood"},
                 "ru": {"name":"Russian","translator":"•MGC•Mr_ChAI#7272"},
+                "ja": {"name":"Japonais","translator":"Near"},
                 "auto": {"name":"Détection automatique"}
             },
             "warning": "Ne <strong>PAS</strong> partager vos tokens avec quelqu'un d'autre. Sinon, ils peuvent utiliser votre compte/vos tokens avec toutes les actions qui n'ont pas besoin d'un mot de passe. Ceci ne peut être évité par l'a2f.<br>Si vous pensez que quelqu'un a votre token, activez l'a2f et changez votre mot de passe. Pour les deux actions, votre compte recevra un nouveau jeton. Mais n'oubliez pas de changer le token dans les paramètres suivants!<br><br>VEUILLEZ DÉFINIR UN MOT DE PASSE POUR ACTIVER LE CRYPTAGE! Si vous ne le faites pas, tous vos tokens seront sauvegardés en texte clair. Chaque plugin et chaque programme sur votre ordinateur peut accéder au fichier et tous vos jetons peuvent être rendus publics en même temps. Si vous activez le cryptage, tous les jetons seront cryptés avec votre mot de passe comme clé. Vous devrez entrer votre mot de passe chaque fois que vous ouvrirez les paramètres et chaque fois que vous voudrez changer votre compte.",
@@ -172,6 +175,7 @@
                 "de": {"name":"Немецкий","translator":"l0c4lh057"},
                 "fr": {"name":"Французский","translator":"Dark Mood"},
                 "ru": {"name":"Русский","translator":"•MGC•Mr_ChAI#7272"},
+                "ja": {"name":"японский","translator":"Near"},
                 "auto": {"name":"Автоопределение"}
             },
             "warning": "<strong>НЕ</strong> передавайте никому свой токен! Иначе он(а) получит полный доступ к вашему аккаунту. Это не может быть предотвращено с помощью 2FA.<br>Если вы считаете, что у кого-то есть ваш токен, включите/выключите 2FA или поменяйте пароль - каждое из этих действий меняет пароль. Но не забудьте поменять его в настройках!<br><br>ПОЖАЛУЙСТА, УСТАНОВИТЕ ПАРОЛЬ, ВКЛЮЧИВ ШИФРОВАНИЕ! Если этого не сделать, токены будут храниться в виде обычного текста, и любой плагин/программа сможет их прочесть, в результате все ваши токены могут быть переданы кому-то другому. Если вы включите шифрование, все токены будут зашифрованы с паролем в качестве ключа. Вам придется вводить пароль каждый раз, когда вы открываете настройки плагина или меняете аккаунт.",
@@ -213,6 +217,61 @@
         "noAccountSet": {
             "title": "Аккаунт не задан",
             "description": "Токен {0} не задан. Вы хотите переключиться на страницу входа?"
+        }
+    },
+    "ja": {
+        "plugin": {
+            "description": "複数のアカウントを左Alt + 1などで切り替えられるようにします"
+        },
+        "settings": {
+            "language": "言語",
+            "languages": {
+                "en": {"name":"英語","translator":"l0c4lh057"},
+                "de": {"name":"ドイツ語","translator":"l0c4lh057"},
+                "fr": {"name":"フランス語","translator":"Dark Mood"},
+                "ru": {"name":"ロシア語","translator":"•MGC•Mr_ChAI#7272"},
+                "ja": {"name":"日本語","translator":"Near"},
+                "auto": {"name":"使用してる言語に合わせます"}
+            },
+            "warning": "<strong>絶対に</strong>他人とトークン(Discord内で使われる認証用の文字列)を共有しないでください。共有し悪用された場合他人がパスワードを用いなくてもDiscordのアカウントの乗っ取りができます。そしてそれは二段階認証などの影響を受けません。<br>もしも誰かにトークンを盗まれたと思ったときはパスワードの変更か二段階認証の有効可・無効化などでトークンが変更できます。ただしこの操作をした場合トークンはもちろん更新されるため保存し直す必要があります。<br><br>暗号化を有効にしてパスワードを設定してください。これを行わないとこのプラグインで保存したトークンはすべてそのまま保存されます。コンピューター上のプログラムやDiscordに適応しているプラグインなどはこのトークンを保存したファイルにアクセス、それらを公開することが可能であることを留意してください。暗号化を有効にするとパスワードをキーとした暗号化がなされます。また、暗号化をした場合設定やアカウントの切り替えの際にパスワードが必要になります。(再起動とかした時の最初だけ！)",
+            "encryption": "トークンを暗号化する",
+            "account": "アカウント {0}",
+            "password": {
+                "set": "パスワードを設定",
+                "setDescription": "このプラグインを使用する際はパスワードを設定してください。もしもパスワードを忘れた場合、トークンを復号化することはできません。.<br><input id='accountswitcher-passwordinput' type='password' placeholder='ここにパスワードを入力してください'>",
+                "remove": "パスワードを削除する",
+                "removeDescription": "パスワードを削除しますか？ すべてのトークンは暗号化されてない状態で保存されるようになります。<br>このリスクが理解できてなお暗号化を解除する場合は 解除 と書かれたボタンを押してください(そんなことをするなんてとんでもない) 暗号化を解除したくない場合はこのポップアップの外を押してください(一回だけでいいよ！)"
+            },
+            "accountNamePlaceholder": "名前",
+            "accountTokenPlaceholder": "トークン",
+            "copyToken": "今のアカウントのトークンをクリップボードにコピーする",
+            "copiedToken": "トークンをクリップボードにコピーしました",
+            "fetchTranslations": "言語を適用",
+            "fetchedTranslations": "言語が指定した言語にしっかり適応されました！",
+            "support": "サポート(日本語のサポートは無いから気をつけてね)",
+            "passwordRequired": {
+                "title": "パスワードを入力してください",
+                "description": "<input id='accountswitcher-passwordinput' type='password' placeholder='ここにパスワードを入力してください'>"
+            },
+            "saveAccount": "アカウントをセーブ",
+            "removeAccount": "アカウントを記録上から削除(Discordからは削除されないよ！)",
+            "showChangelog": "変更履歴を表示"
+        },
+        "couldNotDecrypt": "トークンの復号化に失敗しました。 {0}.",
+        "alreadyUsingAccount": "あなたは既にこのアカウントに切り替えてます",
+        "invalidToken": "このトークンは無効化されています。",
+        "passwordRequired": {
+            "title": "パスワードを入力してください",
+            "description": "アカウントを切り替えるには一度設定したパスワードが必要になります。<br>もしもあなたがパスワードを忘れたのなら暗号化されたトークンを復号化することは<br><input id='accountswitcher-passwordinput' type='password' placeholder='Your password here'>"
+        },
+        "removeAccount": {
+            "title": "アカウントを削除する",
+            "description": "このアカウントを削除したいですか？ 削除した場合切り替えることができなくなります",
+            "tooltip": "アカウントを削除する"
+        },
+        "noAccountSet": {
+            "title": "ここにはアカウントが保存されていません",
+            "description": "スロット {0} にはトークンが保存されていません。ログインしますか？"
         }
     }
 }
