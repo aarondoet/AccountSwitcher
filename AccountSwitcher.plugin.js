@@ -5,7 +5,7 @@ var passwd = null;
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "1.2.4";}
+	getVersion(){return "1.2.5";}
 	getDescription(){return this.local.plugin.description;}
 	
 	constructor(){}
@@ -123,7 +123,7 @@ class AccountSwitcher {
 			this.settings.lastUsedVersion = this.getVersion();
 			if(this.settings.showChangelog)
 				this.alertText("Changelog", `<ul style="list-style-type:circle;padding-left:20px;">
-					<li>Popouts should work again (idk if something else if broken, if something is not working for you, please search for AccountSwitcher in the plugin list and click on Support Server, then state the problem in #support)</li>
+					<li>Plugin should work again. Sorry that you needed to wait for so long.</li>
 				</ul>`);
 		}
 		if(!this.settings.encrypted){
@@ -563,8 +563,9 @@ class AccountSwitcher {
 				backdrop.remove();
 			//}, 300)
 		});
-		backdrop.appendTo("#app-mount > div[data-no-focus-lock='true'] > div:not([class])");
-		a.appendTo("#app-mount > div[data-no-focus-lock='true'] > div:not([class])");
+		let modalRoot = document.querySelector("#app-mount > div[data-no-focus-lock='true'] > div:not([class])");
+		backdrop.appendTo(modalRoot);
+		a.appendTo(modalRoot);
 		if(a.find("#accountswitcher-passwordinput")){
 			a.find("#accountswitcher-passwordinput").on("keydown", e => {
 				if(e.which == 13) a.find(".da-footer button").click();
@@ -631,8 +632,9 @@ class AccountSwitcher {
 				backdrop.remove();
 			}, 300)
 		});
-		backdrop.appendTo("#app-mount > div[data-no-focus-lock='true'] > div:not([class])");
-		a.appendTo("#app-mount > div[data-no-focus-lock='true'] > div:not([class])");
+		let modalRoot = document.querySelector("#app-mount > div[data-no-focus-lock='true'] > div:not([class])");
+		backdrop.appendTo(modalRoot);
+		a.appendTo(modalRoot);
 		if(a.find("#accountswitcher-passwordinput")){
 			a.find("#accountswitcher-passwordinput").on("keydown", e => {
 				if(e.which == 13) a.find(".da-footer button").click();
