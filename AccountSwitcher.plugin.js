@@ -9,7 +9,7 @@ let KeybindModule, KeyRecorder, Keybind;
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "1.2.6";}
+	getVersion(){return "1.2.7";}
     getDescription(){return "Simply switch between accounts with the ease of pressing a single key.";}
 
     constructor(){}
@@ -134,6 +134,7 @@ class AccountSwitcher {
                 <li>You can now save more than ten accounts and SET CUSTOM KEYBINDS for each of them.</li>
                 <li>I hope that everything is working the way it should. Since the plugin is now using a different method to save accounts the settings file needs to be parsed and because it is now using Node's crypto module instead of CryptoJS there could have been problems when parsing the settings and therefore you might have lost your saved accounts, but I tried to make it work correctly. If you have kept your accounts and everything was working the way it should the password is still the same as before.</li>
                 <li>Currently the language support got dropped for this update, but I will try to add this again as soon as possible.</li>
+                <li style="color:#f88">Saving accounts while encryption is enabled should now work properly again. If you saved an account while you had encryption enabled you will need to save it again.</li>
             </ul>`);
         }
         
@@ -324,7 +325,9 @@ class AccountSwitcher {
     }
     
     login(account){
+        console.log("Keybind for " + account.name + " pressed");
         if(account.id == UserStore.getCurrentUser().id) return ZLibrary.Toasts.show("Already using account " + account.name, {type: Toasts.ToastTypes.warning});
+        console.log("Logging in as " + account.name);
         this.requirePassword().then(r => {
             let token = passwd == null ? account.token : this.decrypt(account.token, passwd);
             AccountManager.loginToken(this.decrypt(token, account.id));
@@ -359,12 +362,13 @@ class AccountSwitcher {
         let addAccount = account=>{
             if(!account){
                 let u = UserStore.getCurrentUser();
+                let t = this.encrypt(UserInfoStore.getToken(), u.id);
                 let acc = {
                     name: u.username + u.discriminator,
                     id: u.id,
                     avatar: u.avatarURL,
                     keybind: [64, 10+this.settings.accounts.length],
-                    token: this.encrypt(this.settings.encrypted ? this.encrypt(UserInfoStore.getToken(), passwd) : UserInfoStore.getToken(), u.id)
+                    token: this.settings.encrypted ? this.encrypt(t, passwd) : t
                 };
                 this.settings.accounts.push(acc);
                 this.saveSettings();
