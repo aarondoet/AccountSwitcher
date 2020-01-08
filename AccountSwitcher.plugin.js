@@ -9,7 +9,7 @@ let KeybindModule, KeyRecorder, Keybind;
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "1.2.7";}
+	getVersion(){return "1.2.8";}
     getDescription(){return "Simply switch between accounts with the ease of pressing a single key.";}
 
     constructor(){}
@@ -56,7 +56,7 @@ class AccountSwitcher {
     initialize(){
         ZLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), "https://raw.githubusercontent.com/l0c4lh057/AccountSwitcher/master/AccountSwitcher.plugin.js")
         this.loadSettings();
-        AccountManager = ZLibrary.DiscordModules.AccountManager;
+        AccountManager = ZLibrary.WebpackModules.getByProps("loginToken");
         UserInfoStore = ZLibrary.DiscordModules.UserInfoStore;
         UserStore = ZLibrary.DiscordModules.UserStore;
         Settings = ZLibrary.Settings;
@@ -128,13 +128,7 @@ class AccountSwitcher {
             this.saveSettings();
             if(!this.settings.showChangelog) return;
             this.alertText("Changelog", `<ul style="list-style-type:circle;padding-left:20px;">
-                <li>MERRY CHRISTMAS EVERYONE!!!</li>
-                <li>AccountSwitcher got completely rewritten.</li>
-                <li>It is now using ZLibrary instead of NeatoLib which means it will break less often.</li>
-                <li>You can now save more than ten accounts and SET CUSTOM KEYBINDS for each of them.</li>
-                <li>I hope that everything is working the way it should. Since the plugin is now using a different method to save accounts the settings file needs to be parsed and because it is now using Node's crypto module instead of CryptoJS there could have been problems when parsing the settings and therefore you might have lost your saved accounts, but I tried to make it work correctly. If you have kept your accounts and everything was working the way it should the password is still the same as before.</li>
-                <li>Currently the language support got dropped for this update, but I will try to add this again as soon as possible.</li>
-                <li style="color:#f88">Saving accounts while encryption is enabled should now work properly again. If you saved an account while you had encryption enabled you will need to save it again.</li>
+                <li>Switching accounts works again</li>
             </ul>`);
         }
         
