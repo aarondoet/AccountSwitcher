@@ -28,7 +28,7 @@ Please also check the console by pressing `Ctrl + Shift + I` (`Cmd + Shift + I` 
 
 **Information (please complete the following information):**
  - OS: [e.g. Windows, MacOS, TempleOS]
- - Plugin Version: [e.g. 1.2.3]
+ - Plugin Version: [e.g. 1.2.3, **not** `Latest`]
  - Discord version: [PTB, Stable, Canary]
  - Compact Mode enabled? [yes or no]
  - Encryption enabled? [yes or no]
