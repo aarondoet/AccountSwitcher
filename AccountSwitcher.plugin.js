@@ -17,7 +17,7 @@ let KeybindModule, KeyRecorder, Keybind;
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "1.2.9";}
+	getVersion(){return "1.2.10";}
 	getDescription(){return "Simply switch between accounts with the ease of pressing a single key.";}
 
 	constructor(){}
@@ -137,8 +137,8 @@ class AccountSwitcher {
 			this.saveSettings();
 			if(!this.settings.showChangelog) return;
 			this.alertText("Changelog", `<ul style="list-style-type:circle;padding-left:20px;">
-				<li>Added setting of plugins to restart when switching accounts</li>
-				<li>Switched from spaces to tabs</li>
+				<li>Alert modal should work again</li>
+				<li><b>I know that there might be an issue when switching accounts. Please be patient and wait for a fix. I still could not figure out what the problem is so it is not included in this update.</b></li>
 			</ul>`);
 		}
 		
@@ -259,30 +259,36 @@ class AccountSwitcher {
 	
 	alertText(e, t, callbackOk, callbackCancel) {
 		let backdrop = $(`<div class="backdrop-1wrmKB da-backdrop" style="opacity: 0.85; background-color: rgb(0, 0, 0); z-index: 1000; transform: translateZ(0px);"></div>`);
-		let a =  $(`<div class="modal-3c3bKg da-modal" style="opacity: 1; transform: scale(1) translateZ(0px); z-index: 9999999">
-						<div data-focus-guard="true" tabindex="0" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
-						<div data-focus-guard="true" tabindex="1" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
-						<div data-focus-lock-disabled="false" class="inner-1ilYF7 da-inner">
-							<div class="modal-yWgWj- da-modal container-14fypd da-container sizeSmall-1jtLQy">
-								<div class="scrollerWrap-2lJEkd firefoxFixScrollFlex-cnI2ix da-scrollerWrap da-firefoxFixScrollFlex content-1EtbQh da-content scrollerThemed-2oenus da-scrollerThemed themeGhostHairline-DBD-2d">
-									<div class="scroller-2FKFPG firefoxFixScrollFlex-cnI2ix da-scroller da-firefoxFixScrollFlex systemPad-3UxEGl da-systemPad inner-ZyuQk0 da-inner content-dfabe7 da-content">
-										<h2 class="h2-2gWE-o title-3sZWYQ size16-14cGz5 height20-mO2eIN weightSemiBold-NJexzi da-h2 da-title da-size16 da-height20 da-weightSemiBold defaultColor-1_ajX0 da-defaultColor title-18-Ds0 marginBottom20-32qID7 marginTop8-1DLZ1n da-title da-marginBottom20 da-marginTop8">
-											${e}
-										</h2>
-										<div class="body-Mj9Oxz da-body medium-zmzTW- size16-14cGz5 height20-mO2eIN primary-jw0I4K">
+		let a =  $(`<div class="modal-3c3bKg da-modal" style="opacity: 1; transform: scale(1) translateZ(0px);">
+				<div class="inner-1ilYF7 da-inner" role="dialog" aria-modal="true">
+					<div data-focus-guard="true" tabindex="0" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
+					<div data-focus-guard="true" tabindex="1" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
+					<div data-focus-lock-disabled="false">
+						<div class="modal-yWgWj- da-modal container-1HKDLE da-container sizeSmall-1jtLQy fullscreenOnMobile-1aglG_ da-fullscreenOnMobile" aria-label="title">
+							<div class="flex-1xMQg5 flex-1O1GKY da-flex da-flex horizontal-1ae9ci horizontal-2EEEnY flex-1O1GKY directionRow-3v3tfG justifyStart-2NDFzi alignCenter-1dQNNs noWrap-3jynv6 header-2tA9Os da-header" style="flex: 0 0 auto;">
+								<h4 class="colorStandard-2KCXvj size14-e6ZScH h4-AQvcAz title-3sZWYQ da-h4 da-title defaultColor-1_ajX0 da-defaultColor header-2kr4wt da-header">
+									${e}
+								</h4>
+							</div>
+							<div class="scrollerWrap-2lJEkd da-scrollerWrap content-1EtbQh da-content scrollerThemed-2oenus da-scrollerThemed themeGhostHairline-DBD-2d">
+								<div class="scroller-2FKFPG da-scroller systemPad-3UxEGl da-systemPad inner-ZyuQk0 da-inner content-2oypg3 da-content">
+									<div class="markdown-11q6EU da-markdown">
+										<div class="paragraph-3Ejjt0 da-paragraph">
 											${t}
 										</div>
 									</div>
 								</div>
-								<div class="flex-1xMQg5 flex-1O1GKY da-flex da-flex horizontalReverse-2eTKWD horizontalReverse-3tRjY7 flex-1O1GKY directionRowReverse-m8IjIq justifyBetween-2tTqYu alignStretch-DpGPf3 wrap-ZIn9Iy footer-3rDWdC da-footer" style="flex: 0 0 auto;">
-									<button class="primaryButton-2BsGPp da-primaryButton button-38aScr da-button lookFilled-1Gx00P colorBrand-3pXr91 sizeXlarge-2yFAlZ grow-q77ONN da-grow">
-										<div class="contents-18-Yxp da-contents">Okay</div>
-									</button>
-								</div>
+							</div>
+							<div class="flex-1xMQg5 flex-1O1GKY da-flex da-flex horizontalReverse-2eTKWD horizontalReverse-3tRjY7 flex-1O1GKY directionRowReverse-m8IjIq justifyStart-2NDFzi alignStretch-DpGPf3 noWrap-3jynv6 footer-3rDWdC da-footer" style="flex: 0 0 auto;">
+								<button type="submit" class="button-38aScr da-button lookFilled-1Gx00P colorBrand-3pXr91 sizeMedium-1AC_Sl grow-q77ONN da-grow">
+									<div class="contents-18-Yxp da-contents">Okay</div>
+								</button>
 							</div>
 						</div>
-						<div data-focus-guard="true" tabindex="0" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
-					</div>`);
+					</div>
+					<div data-focus-guard="true" tabindex="0" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
+				</div>
+			</div>`);
 		a.find(".da-footer button").on("click", () => {
 			if(typeof callbackOk === "function") callbackOk();
 			a.remove();
@@ -293,7 +299,7 @@ class AccountSwitcher {
 			a.remove();
 			backdrop.remove();
 		});
-		let modalRoot = document.querySelector("#app-mount > div[data-no-focus-lock='true'] > div:not([class])");
+		let modalRoot = document.querySelector("#app-mount > div:not([class])");
 		backdrop.appendTo(modalRoot);
 		a.appendTo(modalRoot);
 		if(a.find("#accountswitcher-passwordinput")){
@@ -474,6 +480,10 @@ class AccountSwitcher {
 	}
 	saveSettings(){
 		ZLibrary.PluginUtilities.saveSettings(this.getName(), this.settings);
+	}
+	
+	setPassword(password){
+		passwd = password;
 	}
 
 	async convertOldStyleSettings(oldSettings){
