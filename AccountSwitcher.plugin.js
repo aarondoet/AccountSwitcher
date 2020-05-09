@@ -17,7 +17,7 @@ let KeybindModule, KeyRecorder, Keybind;
 class AccountSwitcher {
 	getName(){return "AccountSwitcher";}
 	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "1.2.10";}
+	getVersion(){return "1.2.11";}
 	getDescription(){return "Simply switch between accounts with the ease of pressing a single key.";}
 
 	constructor(){}
@@ -138,7 +138,7 @@ class AccountSwitcher {
 			if(!this.settings.showChangelog) return;
 			this.alertText("Changelog", `<ul style="list-style-type:circle;padding-left:20px;">
 				<li>Alert modal should work again</li>
-				<li><b>I know that there might be an issue when switching accounts. Please be patient and wait for a fix. I still could not figure out what the problem is so it is not included in this update.</b></li>
+				<li>Inputting passwords in the alert modal might not working. You get information on how to switch anyways with encryption enabled when trying to switch.</li>
 			</ul>`);
 		}
 		
@@ -274,6 +274,7 @@ class AccountSwitcher {
 								<div class="scroller-2FKFPG da-scroller systemPad-3UxEGl da-systemPad inner-ZyuQk0 da-inner content-2oypg3 da-content">
 									<div class="markdown-11q6EU da-markdown">
 										<div class="paragraph-3Ejjt0 da-paragraph">
+											${t.includes("<input") ? `Inputting passwords might not be working at the moment. Open the console (CTRL+SHIFT+I) and execute <b>BdApi.Plugins.get("AccountSwitcher").setPassword("<i style='opacity:0.9;'>your password here</i>")</b> to set the password. Enabling encryption should not work this way.<br><br>` : ""}
 											${t}
 										</div>
 									</div>
@@ -299,7 +300,7 @@ class AccountSwitcher {
 			a.remove();
 			backdrop.remove();
 		});
-		let modalRoot = document.querySelector("#app-mount > div:not([class])");
+		let modalRoot = document.querySelector("#app-mount > div:not([class]):not([style])");
 		backdrop.appendTo(modalRoot);
 		a.appendTo(modalRoot);
 		if(a.find("#accountswitcher-passwordinput")){
