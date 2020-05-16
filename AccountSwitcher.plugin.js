@@ -54,7 +54,7 @@ class AccountSwitcher {
 			document.head.appendChild(libraryScript);
 		}
 		if (window.ZLibrary) this.initialize();
-		else libraryScript.addEventListener("load", () => {this.initialize();});
+		else libraryScript.addEventListener("load", this.initialize.bind(this));
 	}
 	stop(){
 		this.settings.accounts.forEach(acc => this.unregisterKeybind(acc));
