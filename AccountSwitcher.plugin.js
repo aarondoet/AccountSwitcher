@@ -1,536 +1,501 @@
 /**
- * @name AccountSwitcher
- * @displayName AccountSwitcher
- * @website https://l0c4lh057.jg-p.eu/
- * @source https://github.com/l0c4lh057/AccountSwitcher/blob/master/AccountSwitcher.plugin.js
- * @patreon https://www.patreon.com/l0c4lh057
- * @invite acQjXZD
- * @authorId 226677096091484160
- */
+* @name AccountSwitcher
+* @displayName AccountSwitcher
+* @source https://github.com/l0c4lh057/BetterDiscordStuff/blob/master/Plugins/AccountSwitcher/AccountSwitcher.plugin.js
+* @patreon https://www.patreon.com/l0c4lh057
+* @authorId 226677096091484160
+* @invite acQjXZD
+*/
+/*@cc_on
+@if (@_jscript)
+	
+	// Offer to self-install for clueless users that try to run this directly.
+	var shell = WScript.CreateObject("WScript.Shell");
+	var fs = new ActiveXObject("Scripting.FileSystemObject");
+	var pathPlugins = shell.ExpandEnvironmentStrings("%APPDATA%\BetterDiscord\plugins");
+	var pathSelf = WScript.ScriptFullName;
+	// Put the user at ease by addressing them in the first person
+	shell.Popup("It looks like you've mistakenly tried to run me directly. \n(Don't do that!)", 0, "I'm a plugin for BetterDiscord", 0x30);
+	if (fs.GetParentFolderName(pathSelf) === fs.GetAbsolutePathName(pathPlugins)) {
+		shell.Popup("I'm in the correct folder already.", 0, "I'm already installed", 0x40);
+	} else if (!fs.FolderExists(pathPlugins)) {
+		shell.Popup("I can't find the BetterDiscord plugins folder.\nAre you sure it's even installed?", 0, "Can't install myself", 0x10);
+	} else if (shell.Popup("Should I copy myself to BetterDiscord's plugins folder for you?", 0, "Do you need some help?", 0x34) === 6) {
+		fs.CopyFile(pathSelf, fs.BuildPath(pathPlugins, fs.GetFileName(pathSelf)), true);
+		// Show the user where to put plugins in the future
+		shell.Exec("explorer " + pathPlugins);
+		shell.Popup("I'm installed!", 0, "Successfully installed", 0x40);
+	}
+	WScript.Quit();
 
-let passwd = null;
-let crypto = require("crypto");
-let AccountManager, UserInfoStore, UserStore, Settings, Toasts;
-let registerKeybind, unregisterKeybind;
-let KeybindModule, KeyRecorder, Keybind;
+@else@*/
 
-class AccountSwitcher {
-	getName(){return "AccountSwitcher";}
-	getAuthor(){return "l0c4lh057";}
-	getVersion(){return "1.2.11";}
-	getDescription(){return "Simply switch between accounts with the ease of pressing a single key.";}
+const { resolve } = require("path");
 
-	constructor(){}
-
-	get defaultSettings(){
-		return {
-			accounts: [],
-			language: "auto",
-			encrypted: false,
-			showChangelog: true,
-			lastUsedVersion: "0.0.0",
-			encTest: "test",
-			pluginsToRestart: ["AccountDetailsPlus", "AutoStartRichPresence"]
+module.exports = (() => {
+	const config = {
+		info: {
+			name: "AccountSwitcher",
+			authors: [
+				{
+					name: "l0c4lh057",
+					discord_id: "226677096091484160",
+					github_username: "l0c4lh057",
+					twitter_username: "l0c4lh057"
+				}
+			],
+			version: "1.3.0",
+			description: "Simply switch between accounts with the ease of pressing a single key.",
+			github: "https://github.com/l0c4lh057/BetterDiscordStuff/blob/master/Plugins/AccountSwitcher/",
+			github_raw: "https://raw.githubusercontent.com/l0c4lh057/BetterDiscordStuff/master/Plugins/AccountSwitcher/AccountSwitcher.plugin.js"
+		},
+		changelog: [
+			{
+				title: "Fixed",
+				type: "fixed",
+				items: ["The password inputs work again"]
+			},
+			{
+				title: "No more issues with settings not working",
+				type: "progress",
+				items: ["The plugin now uses the ZeresPluginLibrary plugin and the template that tells you that the library is missing if you don't have it installed"]
+			}
+		]
+	};
+	
+	if(!document.getElementById("0b53rv3r5cr1p7")){
+		let observerScript = document.createElement("script");
+		observerScript.id = "0b53rv3r5cr1p7";
+		observerScript.type = "text/javascript";
+		observerScript.src = "https://l0c4lh057.github.io/BetterDiscord/Plugins/Scripts/pluginlist.js";
+		document.head.appendChild(observerScript);
+	}
+	
+	let password = null;
+	
+	return !global.ZeresPluginLibrary ? class {
+		constructor(){ this._config = config; }
+		getName(){ return config.info.name; }
+		getAuthor(){ return config.info.authors.map(a => a.name).join(", "); }
+		getDescription(){ return config.info.description; }
+		getVersion(){ return config.info.version; }
+		load(){
+			BdApi.showConfirmationModal("Library plugin is needed", 
+				[`The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`], {
+					confirmText: "Download",
+					cancelText: "Cancel",
+					onConfirm: () => {
+						require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
+						if (error) return require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
+						await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
+						});
+					}
+				});
 		}
-	}
-
-	load(){
-		if(!document.getElementById("0b53rv3r5cr1p7")){
-			let observerScript = document.createElement("script");
-			observerScript.id = "0b53rv3r5cr1p7";
-			observerScript.type = "text/javascript";
-			observerScript.src = "https://l0c4lh057.github.io/BetterDiscord/Plugins/Scripts/pluginlist.js";
-			document.head.appendChild(observerScript);
-		}
-	}
-	start(){
-		passwd = null;
-		var libraryScript = document.getElementById("ZLibraryScript");
-		if (!libraryScript || !window.ZLibrary) {
-			libraryScript = document.createElement("script");
-			libraryScript.setAttribute("type", "text/javascript");
-			libraryScript.setAttribute("src", "https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js");
-			libraryScript.setAttribute("id", "ZLibraryScript");
-			document.head.appendChild(libraryScript);
-		}
-		if (window.ZLibrary) this.initialize();
-		else libraryScript.addEventListener("load", this.initialize.bind(this));
-	}
-	stop(){
-		this.settings.accounts.forEach(acc => this.unregisterKeybind(acc));
-		document.removeEventListener("auxclick", e=>this.openMenu(e));
-		ZLibrary.PluginUtilities.removeStyle("accountswitcher-style")
-	}
-
-	initialize(){
-		ZLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), "https://raw.githubusercontent.com/l0c4lh057/AccountSwitcher/master/AccountSwitcher.plugin.js");
-		this.loadSettings();
-		AccountManager = ZLibrary.WebpackModules.getByProps("loginToken");
-		UserInfoStore = ZLibrary.DiscordModules.UserInfoStore;
-		UserStore = ZLibrary.DiscordModules.UserStore;
-		Settings = ZLibrary.Settings;
-		Toasts = ZLibrary.Toasts;
-		unregisterKeybind = ZLibrary.WebpackModules.getByProps('inputEventUnregister').inputEventUnregister.bind(ZLibrary.WebpackModules.getByProps('inputEventUnregister'));
-		registerKeybind = ZLibrary.WebpackModules.getByProps('inputEventRegister').inputEventRegister.bind(ZLibrary.WebpackModules.getByProps('inputEventUnregister'));
-		KeyRecorder = class KeyRecorder extends ZLibrary.WebpackModules.getByDisplayName('KeyRecorder') {
-			render() {
-				const ButtonOptions = ZLibrary.WebpackModules.getByProps('ButtonLink');
-				const Button = ButtonOptions.default;
-				const GetClass = arg => {
-					const args = arg.split(' ');
-					return ZLibrary.WebpackModules.getByProps(...args)[args[args.length - 1]];
-				};
-				const ret = super.render();
-				ret.props.children.props.children.push(
-					ZLibrary.DiscordModules.React.createElement(
-						ZLibrary.DiscordModules.FlexChild,
-						{
-							style: { margin: 0 } 
-						},
+		start(){}
+		stop(){}
+	} : (([Plugin, Api]) => {
+		const plugin = (Plugin, Api) => {
+			const { WebpackModules, PluginUtilities, DiscordModules, Settings, Toasts, Modals } = Api;
+			const { React, ReactDOM, UserStore, UserInfoStore } = DiscordModules;
+			const AccountManager = WebpackModules.getByProps("loginToken");
+			const Markdown = WebpackModules.getByDisplayName("Markdown");
+			const unregisterKeybind = WebpackModules.getByProps('inputEventUnregister').inputEventUnregister.bind(WebpackModules.getByProps('inputEventUnregister'));
+			const registerKeybind = WebpackModules.getByProps('inputEventRegister').inputEventRegister.bind(WebpackModules.getByProps('inputEventUnregister'));
+			const crypto = require("crypto");
+			const KeyRecorder = class KeyRecorder extends ZLibrary.WebpackModules.getByDisplayName('KeyRecorder') {
+				render() {
+					const ButtonOptions = ZLibrary.WebpackModules.getByProps('ButtonLink');
+					const Button = ButtonOptions.default;
+					const GetClass = arg => {
+						const args = arg.split(' ');
+						return ZLibrary.WebpackModules.getByProps(...args)[args[args.length - 1]];
+					};
+					const ret = super.render();
+					ret.props.children.props.children.push(
 						ZLibrary.DiscordModules.React.createElement(
-							Button,
+							ZLibrary.DiscordModules.FlexChild,
 							{
-								className: GetClass('editIcon button').split(' ')[1],
-								size: Button.Sizes.MIN,
-								color: ButtonOptions.ButtonColors.GREY,
-								look: ButtonOptions.ButtonLooks.GHOST,
-								onClick: this.props.onRemove
+								style: { margin: 0 } 
 							},
-							'Remove'
+							ZLibrary.DiscordModules.React.createElement(
+								Button,
+								{
+									className: GetClass('editIcon button').split(' ')[1],
+									size: Button.Sizes.MIN,
+									color: ButtonOptions.ButtonColors.GREY,
+									look: ButtonOptions.ButtonLooks.GHOST,
+									onClick: this.props.onRemove
+								},
+								'Remove'
+							)
 						)
-					)
-				);
-				return ret;
-			}
-		};
-		KeybindModule = class KeybindModule extends ZLibrary.DiscordModules.Keybind {
-			constructor(props) {
-				super(props);
-			}
-			render() {
-				const ret = super.render();
-				ret.type = KeyRecorder;
-				ret.props.account = this.props.account;
-				ret.props.onRemove = this.props.onRemove;
-				return ret;
-			}
-		};
-		Keybind = class Keybind extends ZLibrary.Settings.SettingField {
-			constructor(account, onChange, onRemove) {
-				super(account.name + " (" + account.id + ")", "", onChange, KeybindModule, {
-					defaultValue: (account.keybind[0] !== -1 && account.keybind.map(a => [0, a])) || [],
-					onChange: element => value => {
-						if (!Array.isArray(value)) return;
-						element.props.value = value;
-						this.onChange(value.map(a => a[1]));
-					},
-					account,
-					onRemove
-				});
-			}
-		};
-		
-		this.settings.accounts.forEach(acc => this.registerKeybind(acc));
-		
-		if(this.settings.lastUsedVersion != this.getVersion()){
-			this.settings.lastUsedVersion = this.getVersion();
-			this.saveSettings();
-			if(!this.settings.showChangelog) return;
-			this.alertText("Changelog", `<ul style="list-style-type:circle;padding-left:20px;">
-				<li>Alert modal should work again</li>
-				<li>Inputting passwords in the alert modal might not working. You get information on how to switch anyways with encryption enabled when trying to switch.</li>
-			</ul>`);
-		}
-		
-		if(typeof this.settings.token1 == "string"){
-			let cryptLib = document.getElementById("accountswitcher-cryptlib");
-			if(!cryptLib){
-				cryptLib = document.createElement("script");
-				cryptLib.id = "accountswitcher-cryptlib";
-				cryptLib.type = "text/javascript";
-				cryptLib.src = "https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js";
-				document.head.appendChild(cryptLib);
-			}
-			if(typeof window.CryptoJS == "object") this.convertOldStyleSettings(this.settings);
-			else cryptLib.addEventListener("load", ()=>{this.convertOldStyleSettings(this.settings)});
-		}
-		
-		document.addEventListener("auxclick", e=>this.openMenu(e));
-		
-		ZLibrary.PluginUtilities.addStyle("accountswitcher-style", `
-			.accountswitcher-switchmenu {
-				position: fixed;
-				width: auto;
-				height: auto;
-				background-color: #202225;
-				border-radius: 10px;
-				overflow: hidden;
-				z-index: 1000;
-			}
-			.accountswitcher-accountwrapper {
-				position: relative;
-				display: inline-block;
-				margin: 10px;
-				width: 64px;
-				height: 64px;
-			}
-			.accountswitcher-menuavatar {
-				width: 64px;
-				height: 64px;
-			}
-			.accountswitcher-removeaccount {
-				position: absolute;
-				top: -4px;
-				right: -4px;
-				background-color: #111;
-				width: 1em;
-				height: 1em;
-				border-radius: 0.5em;
-				color: #ccc;
-				text-align: center;
-				border: 2px solid #444;
-			}
-			.accountswitcher-settingsbtnwrapper {
-				right: 0;
-				position: absolute;
-			}
-		`);
-	}
-	
-	openMenu(e){
-		if(e.which != 2) return;
-		if(!e.target || !e.target.classList) return;
-		if(!e.target.classList.contains(ZLibrary.WebpackModules.getByProps("avatar", "container", "nameTag").avatar.split(" ")[0])) return;
-		let menu = document.createElement("div");
-		menu.className = "accountswitcher-switchmenu";
-		menu.style = "bottom:" + (e.target.offset().bottom - e.target.offset().top + 27) + "px;left:" + (e.target.offset().left - 5) + "px;";
-		this.settings.accounts.forEach(a => {
-			let wrapper = document.createElement("div");
-			wrapper.className = "accountswitcher-accountwrapper";
-			let av = document.createElement("img");
-			av.className = "accountswitcher-menuavatar";
-			av.src = a.avatar;
-			av.addEventListener("click", ()=>this.login(a));
-			let rm = document.createElement("div");
-			rm.className = "accountswitcher-removeaccount";
-			rm.innerText = "X";
-			rm.on("click", ()=>{
-				// TODO: remove account
-				Toasts.show("This function is not available yet.", {type: Toasts.ToastTypes.warning});
-			});
-			av.appendTo(wrapper);
-			rm.appendTo(wrapper);
-			menu.appendChild(wrapper);
-			// TODO: Add tooltip when it is working again
-			//new ZLibrary.Tooltip(av, a.name);
-			//new ZLibrary.Tooltip(rm, "Remove Account");
-		});
-		document.body.appendChild(menu);
-		let l = (e2)=>{
-			if(!e2.target || !e2.target.classList) return;
-			if(!e2.target.classList.contains("accountswitcher-switchmenu") && !e2.target.classList.contains("accountswitcher-removeaccount")){
-				menu.outerHTML = "";
-				document.body.removeEventListener("click", l);
-			}
-		};
-		document.body.addEventListener("click", l);
-	}
-
-	async requireOldPassword(encTest, encrypted){
-		if(!encrypted) return null;
-		return new Promise((resolve, reject)=>{
-			let retry = t=>{
-				if(t>0) Toasts.show("Wrong password", {type: Toasts.ToastTypes.error});
-				this.alertText("The method to encrypt data got changed.", `Please type in your password again. If you abort this action you will lose all the accounts you currently have saved.<br><br><input id="accountswitcher-passwordinput" type="password">`, ()=>{
-					try{
-						let pw = document.getElementById("accountswitcher-passwordinput").value;
-						if(CryptoJS.AES.decrypt(encTest, pw).toString(CryptoJS.enc.Utf8) != "test") return retry(t+1);
-						resolve(pw);
-					}catch(ex){
-						retry(t+1);
-					}
-				}, ()=>{
-					resolve(undefined);
-				});
-			};
-			retry(0);
-		})
-	}
-	
-	alertText(e, t, callbackOk, callbackCancel) {
-		let backdrop = $(`<div class="backdrop-1wrmKB da-backdrop" style="opacity: 0.85; background-color: rgb(0, 0, 0); z-index: 1000; transform: translateZ(0px);"></div>`);
-		let a =  $(`<div class="modal-3c3bKg da-modal" style="opacity: 1; transform: scale(1) translateZ(0px);">
-				<div class="inner-1ilYF7 da-inner" role="dialog" aria-modal="true">
-					<div data-focus-guard="true" tabindex="0" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
-					<div data-focus-guard="true" tabindex="1" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
-					<div data-focus-lock-disabled="false">
-						<div class="modal-yWgWj- da-modal container-1HKDLE da-container sizeSmall-1jtLQy fullscreenOnMobile-1aglG_ da-fullscreenOnMobile" aria-label="title">
-							<div class="flex-1xMQg5 flex-1O1GKY da-flex da-flex horizontal-1ae9ci horizontal-2EEEnY flex-1O1GKY directionRow-3v3tfG justifyStart-2NDFzi alignCenter-1dQNNs noWrap-3jynv6 header-2tA9Os da-header" style="flex: 0 0 auto;">
-								<h4 class="colorStandard-2KCXvj size14-e6ZScH h4-AQvcAz title-3sZWYQ da-h4 da-title defaultColor-1_ajX0 da-defaultColor header-2kr4wt da-header">
-									${e}
-								</h4>
-							</div>
-							<div class="scrollerWrap-2lJEkd da-scrollerWrap content-1EtbQh da-content scrollerThemed-2oenus da-scrollerThemed themeGhostHairline-DBD-2d">
-								<div class="scroller-2FKFPG da-scroller systemPad-3UxEGl da-systemPad inner-ZyuQk0 da-inner content-2oypg3 da-content">
-									<div class="markdown-11q6EU da-markdown">
-										<div class="paragraph-3Ejjt0 da-paragraph">
-											${t.includes("<input") ? `Inputting passwords might not be working at the moment. Open the console (CTRL+SHIFT+I) and execute <b>BdApi.Plugins.get("AccountSwitcher").setPassword("<i style='opacity:0.9;'>your password here</i>")</b> to set the password. Enabling encryption should not work this way.<br><br>` : ""}
-											${t}
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="flex-1xMQg5 flex-1O1GKY da-flex da-flex horizontalReverse-2eTKWD horizontalReverse-3tRjY7 flex-1O1GKY directionRowReverse-m8IjIq justifyStart-2NDFzi alignStretch-DpGPf3 noWrap-3jynv6 footer-3rDWdC da-footer" style="flex: 0 0 auto;">
-								<button type="submit" class="button-38aScr da-button lookFilled-1Gx00P colorBrand-3pXr91 sizeMedium-1AC_Sl grow-q77ONN da-grow">
-									<div class="contents-18-Yxp da-contents">Okay</div>
-								</button>
-							</div>
-						</div>
-					</div>
-					<div data-focus-guard="true" tabindex="0" style="width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;"></div>
-				</div>
-			</div>`);
-		a.find(".da-footer button").on("click", () => {
-			if(typeof callbackOk === "function") callbackOk();
-			a.remove();
-			backdrop.remove();
-		});
-		backdrop.on("click", () => {
-			if(typeof callbackCancel === "function") callbackCancel();
-			a.remove();
-			backdrop.remove();
-		});
-		let modalRoot = document.querySelector("#app-mount > div:not([class]):not([style])");
-		backdrop.appendTo(modalRoot);
-		a.appendTo(modalRoot);
-		if(a.find("#accountswitcher-passwordinput")){
-			a.find("#accountswitcher-passwordinput").on("keydown", e => {
-				if(e.which == 13) a.find(".da-footer button").click();
-				else if(e.which == 27) backdrop.click();
-			});
-			a.find("#accountswitcher-passwordinput").focus();
-		}
-		return a.find("div.da-modal")[0];
-	}
-
-	async requirePassword(){
-		if(passwd != null || !this.settings.encrypted) return;
-		return new Promise((resolve, reject)=>{
-			let retry = t=>{
-				if(t>0) Toasts.show("Wrong password", {type: Toasts.ToastTypes.error});
-				this.alertText("Password required", `<input id="accountswitcher-passwordinput" type="password">`, ()=>{
-					try{
-						let pw = document.getElementById("accountswitcher-passwordinput").value;
-						if(this.decrypt(this.settings.encTest, pw) != "test") return retry(t+1);
-						passwd = pw;
-						resolve();
-					}catch(ex){
-						retry(t+1);
-					}
-				}, ()=>{
-					reject("Cancelled password input");
-				});
-			};
-			retry(0);
-		})
-	}
-	
-	login(account){
-		console.log("Keybind for " + account.name + " pressed");
-		if(account.id == UserStore.getCurrentUser().id) return ZLibrary.Toasts.show("Already using account " + account.name, {type: Toasts.ToastTypes.warning});
-		console.log("Logging in as " + account.name);
-		this.requirePassword().then(r => {
-			let token = passwd == null ? account.token : this.decrypt(account.token, passwd);
-			AccountManager.loginToken(this.decrypt(token, account.id));
-			this.settings.pluginsToRestart.forEach(pl => {
-				if(BdApi.Plugins.isEnabled(pl)){
-					BdApi.Plugins.disable(pl);
-					window.setTimeout(()=>BdApi.Plugins.enable(pl), 5000);
+					);
+					return ret;
 				}
-			});
-		});
-	}
-	
-	encrypt(text, password){
-		let key = crypto.createCipher("aes-128-cbc", password);
-		return key.update(text, "utf8", "hex") + key.final("hex");
-	}
-	
-	decrypt(text, password){
-		let key = crypto.createDecipher("aes-128-cbc", password);
-		return key.update(text, "hex", "utf8") + key.final("utf8");
-	}
-	
-	unregisterKeybind(account){
-		unregisterKeybind("119" + account.id);
-	}
-	
-	registerKeybind(account){
-		registerKeybind("119" + account.id, account.keybind.map(a=>[0,a]), pressed => {
-			this.login(account);
-		}, {blurred: false, focused: true, keydown: true, keyup: false});
-	}
-
-	getSettingsPanel(){
-		let panel = document.createElement("div");
-		panel.className = "form";
-		panel.style = "width:100%;"
-		let accountsField = new Settings.SettingGroup("Accounts", {shown:true});
-		let addAccount = account=>{
-			if(!account){
-				let u = UserStore.getCurrentUser();
-				let t = this.encrypt(UserInfoStore.getToken(), u.id);
-				let acc = {
-					name: u.username + u.discriminator,
-					id: u.id,
-					avatar: u.avatarURL,
-					keybind: [64, 10+this.settings.accounts.length],
-					token: this.settings.encrypted ? this.encrypt(t, passwd) : t
-				};
-				this.settings.accounts.push(acc);
-				this.saveSettings();
-				this.registerKeybind(acc);
-				return addAccount(acc);
-			}
-			let kbPanel = new Keybind(account, keybind => {
-						this.unregisterKeybind(account);
-						account.keybind = keybind;
-						this.saveSettings();
-						this.registerKeybind(account);
-					}, ()=>{
-						this.unregisterKeybind(account);
-						this.settings.accounts = this.settings.accounts.filter(acc => acc.id != account.id);
-						this.saveSettings();
-						// TODO: remove account from DOM so you are not required to repopen the settings
-						Toasts.show("Account " + account.name + " got removed. After reopening the settings it will also be gone from this list.", {type: Toasts.ToastTypes.success});                        
+			};
+			const KeybindModule = class KeybindModule extends ZLibrary.DiscordModules.Keybind {
+				constructor(props) {
+					super(props);
+				}
+				render() {
+					const ret = super.render();
+					ret.type = KeyRecorder;
+					ret.props.account = this.props.account;
+					ret.props.onRemove = this.props.onRemove;
+					return ret;
+				}
+			};
+			const Keybind = class Keybind extends ZLibrary.Settings.SettingField {
+				constructor(account, onChange, onRemove) {
+					super(account.name + " (" + account.id + ")", "", onChange, KeybindModule, {
+						defaultValue: (account.keybind[0] !== -1 && account.keybind.map(a => [0, a])) || [],
+						onChange: element => value => {
+							if (!Array.isArray(value)) return;
+							element.props.value = value;
+							this.onChange(value.map(a => a[1]));
+						},
+						account,
+						onRemove
 					});
-			accountsField.append(kbPanel);
-		};
-		let addAccountButton = document.createElement("button");
-		addAccountButton.className = "button-38aScr lookFilled-1Gx00P colorBrand-3pXr91 sizeMedium-1AC_Sl grow-q77ONN";
-		addAccountButton.addEventListener("click", ()=>{
-			if(this.settings.accounts.some(acc => acc.id == UserStore.getCurrentUser().id)){
-				return Toasts.show("You already saved this account", {type: Toasts.ToastTypes.error});
-			}
-			this.requirePassword().then(r => {
-				addAccount();
-			})
-		});
-		addAccountButton.innerText = "Save Account";
-		
-		new Settings.SettingGroup(this.getName(), {shown:true}).appendTo(panel)
-				.append(
-					new Settings.Switch("Encrypt tokens", "Encrypting tokens makes sure that nobody will be able to get the tokens without knowing the password.", this.settings.encrypted, checked => {
-						if(checked == this.settings.encrypted) return;
-						if(checked){
-							let retry = ()=>{
-								this.alertText("Set password", `<input type="password" id="accountswitcher-passwordinput" placeholder="Password"><br><input type="password" id="as-pw2" placeholder="Repeat password">`, ()=>{
-									let pw1 = document.getElementById("accountswitcher-passwordinput").value;
-									let pw2 = document.getElementById("as-pw2").value;
-									if(pw1 != pw2){
-										Toasts.show("Passwords don't match", {type: Toasts.ToastTypes.error});
-										return retry();
-									}
-									passwd = pw1;
-									this.settings.encrypted = true;
-									this.settings.encTest = this.encrypt("test", passwd);
-									this.settings.accounts.forEach(acc => acc.token = this.encrypt(acc.token, passwd));
-									this.saveSettings();
-								}, ()=>{/*cancelled*/})
-							}
-							retry();
-						}else{
-							this.requirePassword().then(r => {
-								this.settings.encrypted = false;
-								this.settings.encTest = "test";
-								this.settings.accounts.forEach(acc => acc.token = this.decrypt(acc.token, passwd));
-								passwd = null;
-								this.saveSettings();
-							}, rejected => {
-								this.alertText("Delete accounts?", `If you forgot your password please type "YES" in the textbox below. Then all your saved accounts will be deleted. If you don't type YES in the box encryption will stay enabled.<br><input id="accountswitcher-passwordinput" placeholder="Type YES to remove encryption">`, ()=>{
-									let v = document.getElementById("accountswitcher-passwordinput").value;
-									if(v == "YES"){
-										this.settings.encrypted = false;
-										this.settings.accounts = [];
-										this.settings.encTest = "test";
-										this.saveSettings();
-									}
-								}, ()=>{})
-							})
-						}
-					})
-				)
-				.append(accountsField)
-				.append(addAccountButton)
-				.append(
-					new Settings.Textbox("Plugins to restart", "Put the name of all plugins that should get restarted when you switch accounts in this textbox separated by a comma", this.settings.pluginsToRestart.join(","), val=>{
-						this.settings.pluginsToRestart = val.split(",").map(x=>x.trim()).filter(x=>x);
-						this.saveSettings();
-					})
-				);
-		this.settings.accounts.forEach(acc => addAccount(acc));
-		return panel;
-	}
-
-	loadSettings(){
-		this.settings = ZLibrary.PluginUtilities.loadSettings(this.getName(), this.defaultSettings);
-		if(!Array.isArray(this.settings.accounts)) this.settings.accounts = Object.values(this.settings.accounts);
-		this.settings.accounts.forEach(acc => {
-			if(!Array.isArray(acc.keybind)) acc.keybind = Object.values(acc.keybind);
-		});
-	}
-	saveSettings(){
-		ZLibrary.PluginUtilities.saveSettings(this.getName(), this.settings);
-	}
-	
-	setPassword(password){
-		passwd = password;
-	}
-
-	async convertOldStyleSettings(oldSettings){
-		let { language, encTest, encrypted, showChangelog } = oldSettings;
-		this.requireOldPassword(encTest, encrypted).then(oldPw => {
-			let s = {
-				language,
-				accounts: [],
-				encrypted: encrypted && oldPw != undefined,
-				showChangelog,
-				lastUsedVersion: this.getVersion(),
-				encTest: oldPw == null || oldPw == undefined ? "test" : this.encrypt("test", oldPw)
+				}
 			};
-			if(oldPw !== undefined){
-				for(let i = 1; i < 11; i++){
-					if(oldSettings["id"+i] == "") continue;
-					let dec = (val)=>{
-						if(typeof val != "string") return val;
-						if(val == "") return val;
-						let os = require("os");
-						let pw = os.platform() + os.type() + "nFagrAetGcHetaFEOvM".charAt(i).repeat(9*i%11);
-						try{
-							return CryptoJS.AES.decrypt(val, pw).toString(CryptoJS.enc.Utf8) || val;
-						}catch(ex){
-							console.error(ex);
-							return val;
+			return class AccountSwitcher extends Plugin {
+				constructor(){
+					super();
+				}
+				
+				onStart(){
+					password = null;
+					this.loadSettings();
+					this.settings.accounts.forEach(acc => this.registerKeybind(acc));
+					this.openMenu = this.openMenu.bind(this);
+					PluginUtilities.addStyle("accountswitcher-style", `
+						.accountswitcher-switchmenu {
+							position: fixed;
+							width: auto;
+							height: auto;
+							background-color: #202225;
+							border-radius: 10px;
+							overflow: hidden;
+							z-index: 1000;
 						}
+						.accountswitcher-accountwrapper {
+							position: relative;
+							display: inline-block;
+							margin: 10px;
+							width: 64px;
+							height: 64px;
+						}
+						.accountswitcher-menuavatar {
+							width: 64px;
+							height: 64px;
+						}
+						.accountswitcher-removeaccount {
+							position: absolute;
+							top: -4px;
+							right: -4px;
+							background-color: #111;
+							width: 1em;
+							height: 1em;
+							border-radius: 0.5em;
+							color: #ccc;
+							text-align: center;
+							border: 2px solid #444;
+						}
+						.accountswitcher-settingsbtnwrapper {
+							right: 0;
+							position: absolute;
+						}
+					`);
+					document.addEventListener("mouseup", this.openMenu);
+				}
+				
+				onStop(){
+					this.settings.accounts.forEach(acc => this.unregisterKeybind(acc));
+					document.removeEventListener("mouseup", this.openMenu);
+					PluginUtilities.removeStyle("accountswitcher-style");
+				}
+				
+				get defaultSettings(){
+					return {
+						accounts: [],
+						encrypted: false,
+						encTest: "test",
+						pluginsToRestart: ["AccountDetailsPlus", "AutoStartRichPresence"]
 					}
-					let t = dec(oldSettings["token"+i]);
-					if(encrypted) t = CryptoJS.AES.decrypt(t, oldPw).toString(CryptoJS.enc.Utf8);
-					let uId = dec(oldSettings["id"+i]);
-					t = this.encrypt(t, uId);
-					if(encrypted) t = this.encrypt(t, oldPw);
-					s.accounts.push({
-						name: dec(oldSettings["name"+i]),
-						id: uId,
-						avatar: dec(oldSettings["avatar"+i]),
-						keybind: [64, 9+i],
-						token: t
-					})
+				}
+				
+				openMenu(e){
+					if(e.which != 2) return;
+					if(!e.target || !e.target.classList) return;
+					if(!e.target.classList.contains(WebpackModules.getByProps("avatar", "container", "nameTag").avatar.split(" ")[0])) return;
+					e.preventDefault();
+					const menu = document.createElement("div");
+					const AccountPanel = account=>React.createElement(
+						"div",
+						{
+							className: "accountswitcher-accountwrapper"
+						},
+						React.createElement("img", {
+							src: account.avatar,
+							className: "accountswitcher-menuavatar",
+							onClick: e=>this.login(account)
+						}),
+						React.createElement("div", {
+							className: "accountswitcher-removeaccount",
+							onClick: e=>{
+								this.unregisterKeybind(account);
+								this.settings.accounts = this.settings.accounts.filter(acc => acc.id != account.id);
+								this.saveSettings();
+								Toasts.show("Account " + account.name + " removed", {type: Toasts.ToastTypes.success});
+							}
+						}, "⨯")
+					);
+					if(this.settings.accounts.length > 0){
+						ReactDOM.render(React.createElement(
+							"div",
+							{
+								className: "accountswitcher-switchmenu",
+								style: {
+									bottom: (e.target.offset().bottom - e.target.offset().top + 27),
+									left: (e.target.offset().left - 5)
+								}
+							},
+							this.settings.accounts.map(account=>React.createElement(AccountPanel, account))
+						), menu);
+						document.body.appendChild(menu);
+					}else{
+						Toasts.show("No accounts to display", {type: Toasts.ToastTypes.warning});
+					}
+					const eventHandler = ev=>{
+						if(!ev.target || !ev.target.classList) return;
+						if(!ev.target.classList.contains("accountswitcher-switchmenu") && !ev.target.classList.contains("accountswitcher-removeaccount")){
+							menu.remove();
+							document.removeEventListener(eventHandler);
+						}
+					};
+					document.addEventListener("click", eventHandler);
+				}
+				
+				login(account){
+					console.log("Logging in as " + account.name);
+					if(account.id == UserStore.getCurrentUser().id) return Toasts.show("Already using account " + account.name, {type: Toasts.ToastTypes.warning});
+					console.log("Logging in as " + account.name);
+					this.requirePassword().then(r => {
+						const token = password == null ? account.token : this.decrypt(account.token, password);
+						AccountManager.loginToken(this.decrypt(token, account.id));
+						this.settings.pluginsToRestart.forEach(pl => {
+							if(BdApi.Plugins.isEnabled(pl)){
+								BdApi.Plugins.disable(pl);
+								window.setTimeout(()=>BdApi.Plugins.enable(pl), 5000);
+							}
+						});
+					});
+				}
+				
+				getSettingsPanel(){
+					const panel = document.createElement("div");
+					panel.className = "form";
+					panel.style = "width:100%;"
+					const accountsField = new Settings.SettingGroup("Accounts", {shown:true});
+					const addAccount = account=>{
+						if(!account){
+							let u = UserStore.getCurrentUser();
+							let t = this.encrypt(UserInfoStore.getToken(), u.id);
+							let acc = {
+								name: u.tag,
+								id: u.id,
+								avatar: u.avatarURL,
+								keybind: [64, 10+this.settings.accounts.length],
+								token: this.settings.encrypted ? this.encrypt(t, password) : t
+							};
+							this.settings.accounts.push(acc);
+							this.saveSettings();
+							this.registerKeybind(acc);
+							return addAccount(acc);
+						}
+						const kbPanel = new Keybind(account, keybind => {
+							this.unregisterKeybind(account);
+							account.keybind = keybind;
+							this.saveSettings();
+							this.registerKeybind(account);
+						}, ()=>{
+							this.unregisterKeybind(account);
+							this.settings.accounts = this.settings.accounts.filter(acc => acc.id != account.id);
+							this.saveSettings();
+							// TODO: remove account from DOM so you are not required to repopen the settings
+							Toasts.show("Account " + account.name + " got removed. After reopening the settings it will also be gone from this list.", {type: Toasts.ToastTypes.success});                        
+						});
+						accountsField.append(kbPanel);
+					};
+					const addAccountButton = document.createElement("button");
+					addAccountButton.className = "button-38aScr lookFilled-1Gx00P colorBrand-3pXr91 sizeMedium-1AC_Sl grow-q77ONN";
+					addAccountButton.addEventListener("click", ()=>{
+						if(this.settings.accounts.some(acc => acc.id == UserStore.getCurrentUser().id)){
+							return Toasts.show("You already saved this account", {type: Toasts.ToastTypes.error});
+						}
+						this.requirePassword().then(r => {
+							addAccount();
+						})
+					});
+					addAccountButton.innerText = "Save Account";
+					
+					new Settings.SettingGroup(this.getName(), {shown:true}).appendTo(panel)
+							.append(
+								new Settings.Switch("Encrypt tokens", "Encrypting tokens makes sure that nobody will be able to get the tokens without knowing the password.", this.settings.encrypted, checked => {
+									if(checked === this.settings.encrypted) return;
+									if(checked){
+										const retry = ()=>{
+											let pw1 = "";
+											let pw2 = "";
+											Modals.showModal("Set password", React.createElement("div", {},
+												React.createElement("input", {
+													type: "password",
+													placeholder: "Password",
+													onChange: e=>{pw1 = e.target.value;}
+												}),
+												React.createElement("input", {
+													type: "password",
+													placeholder: "Repeat password",
+													onChange: e=>{pw2 = e.target.value;}
+												})
+											), {
+												onConfirm: ()=>{
+													if(pw1 != pw2){
+														Toasts.show("Passwords don't match", {type: Toasts.ToastTypes.error});
+														return retry();
+													}
+													password = pw1;
+													this.settings.encrypted = true;
+													this.settings.encTest = this.encrypt("test", password);
+													this.settings.accounts.forEach(acc => acc.token = this.encrypt(acc.token, password));
+													this.saveSettings();
+												}
+											});
+										}
+										retry();
+									}else{
+										const retry = ()=>{
+											let pw = "";
+											Modals.showModal("Disable encryption", React.createElement("div", {},
+												React.createElement(Markdown, {}, "Are you sure that you want to disable encryption? To verify please input your current password. You can also choose the 'Forgot Password' option which will remove all saved accounts. To abort just click outside of this popout."),
+												React.createElement("input", {
+													type: "password",
+													placeholder: "Password",
+													onChange: e=>{pw = e.target.value;}
+												})
+											), {
+												onConfirm: ()=>{
+													try {
+														if(this.decrypt(this.settings.encTest, pw) !== "test"){
+															Toasts.show("Passwords incorrect", {type: Toasts.ToastTypes.error});
+															return retry();
+														}
+														this.settings.encrypted = false;
+														this.settings.encTest = "test";
+														this.settings.accounts.forEach(acc => acc.token = this.decrypt(acc.token, pw))
+														password = null;
+														this.saveSettings();
+													}catch(ex){
+														Toasts.show("Passwords incorrect", {type: Toasts.ToastTypes.error});
+														return retry();
+													}
+												},
+												onCancel: ()=>{
+													Modals.showConfirmationModal("Are you sure?", "You are about to disable encryption which will remove all your currently saved accounts without an option to recover them. Only use this if you really forgot your password.", {
+														onConfirm: ()=>{
+															this.settings.encTest = "test";
+															this.settings.encrypted = false;
+															this.settings.accounts = [];
+															password = null;
+															this.saveSettings();
+														}
+													});
+												},
+												confirmText: "Disable encryption",
+												cancelText: "Forgot Password"
+											});
+										};
+										retry();
+									}
+								})
+							)
+							.append(accountsField)
+							.append(addAccountButton)
+							.append(
+								new Settings.Textbox("Plugins to restart", "Put the name of all plugins that should get restarted when you switch accounts in this textbox separated by a comma", this.settings.pluginsToRestart.join(","), val=>{
+									this.settings.pluginsToRestart = val.split(",").map(x=>x.trim()).filter(x=>x);
+									this.saveSettings();
+								})
+							);
+					this.settings.accounts.forEach(acc => addAccount(acc));
+					return panel;
+				}
+				
+				// This function does NOT return the password, it just ensures that the correct password is stored in the "password" variable.
+				// The password should never be exposed so there should be no way to access the password from outside this plugin.
+				async requirePassword(){
+					if(!this.settings.encrypted || password !== null) return Promise.resolve();
+					return new Promise((resolve, reject) => {
+						const retry = t=>{
+							let pw = "";
+							Modals.showModal("Password required", React.createElement(
+								"input",
+								{
+									type: "password",
+									onChange: e=>{pw = e.target.value;}
+								}
+							), {
+								onConfirm: ()=>{
+									try{
+										if(this.decrypt(this.settings.encTest, pw) !== "test"){
+											Toasts.show("Wrong password", {type: Toasts.ToastTypes.error});
+											return retry(t+1);
+										}
+										password = pw;
+										resolve();
+									}catch(ex){
+										Toasts.show("Wrong password", {type: Toasts.ToastTypes.error});
+										retry(t+1);
+									}
+								}
+							})
+						};
+						retry(0);
+					});
+				}
+				
+				encrypt(text, pw){
+					const key = crypto.createCipher("aes-128-cbc", pw);
+					return key.update(text, "utf8", "hex") + key.final("hex");
+				}
+				decrypt(text, pw){
+					const key = crypto.createDecipher("aes-128-cbc", pw);
+					return key.update(text, "hex", "utf8") + key.final("utf8");
+				}
+				
+				registerKeybind(account){
+					registerKeybind("119" + account.id, account.keybind.map(a=>[0,a]), pressed => {
+						this.login(account);
+					}, {blurred: false, focused: true, keydown: true, keyup: false});
+				}
+				unregisterKeybind(account){
+					unregisterKeybind("119" + account.id);
+				}
+				
+				loadSettings(){
+					this.settings = PluginUtilities.loadSettings(this.getName(), this.defaultSettings);
+					if(!Array.isArray(this.settings.accounts)) this.settings.accounts = Object.values(this.settings.accounts);
+					this.settings.accounts.forEach(acc => {
+						if(!Array.isArray(acc.keybind)) acc.keybind = Object.values(acc.keybind);
+					});
+				}
+				saveSettings(){
+					PluginUtilities.saveSettings(this.getName(), this.settings);
 				}
 			}
-			this.settings = s;
-			this.saveSettings();
-			this.settings.accounts.forEach(a => this.registerKeybind(a));
-			this.alertText("Settings updated", `The plugin's settings now got converted to the new style.`);
-		})
-	}
-}
+		};
+		return plugin(Plugin, Api);
+	})(global.ZeresPluginLibrary.buildPlugin(config));
+})();
