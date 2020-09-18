@@ -1,7 +1,7 @@
 /**
 * @name AccountSwitcher
 * @displayName AccountSwitcher
-* @source https://github.com/l0c4lh057/BetterDiscordStuff/blob/master/Plugins/AccountSwitcher/AccountSwitcher.plugin.js
+* @source https://github.com/l0c4lh057/AccountSwitcher/blob/master/AccountSwitcher.plugin.js
 * @patreon https://www.patreon.com/l0c4lh057
 * @authorId 226677096091484160
 * @invite acQjXZD
@@ -30,8 +30,6 @@
 
 @else@*/
 
-const { resolve } = require("path");
-
 module.exports = (() => {
 	const config = {
 		info: {
@@ -46,8 +44,8 @@ module.exports = (() => {
 			],
 			version: "1.3.0",
 			description: "Simply switch between accounts with the ease of pressing a single key.",
-			github: "https://github.com/l0c4lh057/BetterDiscordStuff/blob/master/Plugins/AccountSwitcher/",
-			github_raw: "https://raw.githubusercontent.com/l0c4lh057/BetterDiscordStuff/master/Plugins/AccountSwitcher/AccountSwitcher.plugin.js"
+			github: "https://github.com/l0c4lh057/AccountSwitcher",
+			github_raw: "https://raw.githubusercontent.com/l0c4lh057/AccountSwitcher/master/AccountSwitcher.plugin.js"
 		},
 		changelog: [
 			{
