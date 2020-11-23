@@ -42,32 +42,19 @@ module.exports = (() => {
 					twitter_username: "l0c4lh057"
 				}
 			],
-			version: "1.3.0",
+			version: "1.3.1",
 			description: "Simply switch between accounts with the ease of pressing a single key.",
 			github: "https://github.com/l0c4lh057/AccountSwitcher",
 			github_raw: "https://raw.githubusercontent.com/l0c4lh057/AccountSwitcher/master/AccountSwitcher.plugin.js"
 		},
 		changelog: [
 			{
-				title: "Fixed",
-				type: "fixed",
-				items: ["The password inputs work again"]
-			},
-			{
-				title: "No more issues with settings not working",
+				title: "Changed",
 				type: "progress",
-				items: ["The plugin now uses the ZeresPluginLibrary plugin and the template that tells you that the library is missing if you don't have it installed"]
+				items: ["Avatars of cached users should now get updated after plugin start and after switching accounts."]
 			}
 		]
 	};
-	
-	if(!document.getElementById("0b53rv3r5cr1p7")){
-		let observerScript = document.createElement("script");
-		observerScript.id = "0b53rv3r5cr1p7";
-		observerScript.type = "text/javascript";
-		observerScript.src = "https://l0c4lh057.github.io/BetterDiscord/Plugins/Scripts/pluginlist.js";
-		document.head.appendChild(observerScript);
-	}
 	
 	let password = null;
 	
@@ -94,13 +81,33 @@ module.exports = (() => {
 		stop(){}
 	} : (([Plugin, Api]) => {
 		const plugin = (Plugin, Api) => {
-			const { WebpackModules, PluginUtilities, DiscordModules, Settings, Toasts, Modals } = Api;
+			const { WebpackModules, PluginUtilities, DiscordModules, Settings, Toasts, Modals, DOMTools } = Api;
 			const { React, ReactDOM, UserStore, UserInfoStore } = DiscordModules;
 			const AccountManager = WebpackModules.getByProps("loginToken");
 			const Markdown = WebpackModules.getByDisplayName("Markdown");
 			const unregisterKeybind = WebpackModules.getByProps('inputEventUnregister').inputEventUnregister.bind(WebpackModules.getByProps('inputEventUnregister'));
 			const registerKeybind = WebpackModules.getByProps('inputEventRegister').inputEventRegister.bind(WebpackModules.getByProps('inputEventUnregister'));
 			const crypto = require("crypto");
+			
+			if(!BdApi.Plugins.get("BugReportHelper") && !BdApi.getData(config.info.name, "didShowIssueHelperPopup")){
+				BdApi.saveData(config.info.name, "didShowIssueHelperPopup", true);
+				BdApi.showConfirmationModal("Do you want to download a helper plugin?", 
+					[`Do you want to download a helper plugin that makes it easier for you to report issues? That plugin is not needed to anything else to function correctly but nice to have when reporting iissues, shortening the time until the problem gets resolved by asking you for specific information and also including additional information you did not provide.`],
+					{
+						confirmText: "Download",
+						cancelText: "Cancel",
+						onConfirm: () => {
+							require("request").get("https://raw.githubusercontent.com/l0c4lh057/BetterDiscordStuff/master/Plugins/BugReportHelper/BugReportHelper.plugin.js", (error, response, body) => {
+								if (error) return require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/l0c4lh057/BetterDiscordStuff/master/Plugins/BugReportHelper/BugReportHelper.plugin.js");
+								else require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "BugReportHelper.plugin.js"), body, ()=>{
+									window.setTimeout(()=>BdApi.Plugins.enable("BugReportHelper"), 1000);
+								});
+							});
+						}
+					}
+				);
+			}
+			
 			const KeyRecorder = class KeyRecorder extends ZLibrary.WebpackModules.getByDisplayName('KeyRecorder') {
 				render() {
 					const ButtonOptions = ZLibrary.WebpackModules.getByProps('ButtonLink');
@@ -163,6 +170,13 @@ module.exports = (() => {
 					super();
 				}
 				
+				updateAvatars(){
+					this.settings.accounts.forEach(acc => {
+						const u = UserStore.getUser(acc.id);
+						if(u) acc.avatar = u.avatarURL;
+					})
+				}
+				
 				onStart(){
 					password = null;
 					this.loadSettings();
@@ -207,6 +221,7 @@ module.exports = (() => {
 						}
 					`);
 					document.addEventListener("mouseup", this.openMenu);
+					this.updateAvatars();
 				}
 				
 				onStop(){
@@ -251,13 +266,14 @@ module.exports = (() => {
 						}, "⨯")
 					);
 					if(this.settings.accounts.length > 0){
+						const offset = DOMTools.offset(e.target);
 						ReactDOM.render(React.createElement(
 							"div",
 							{
 								className: "accountswitcher-switchmenu",
 								style: {
-									bottom: (e.target.offset().bottom - e.target.offset().top + 27),
-									left: (e.target.offset().left - 5)
+									bottom: (offset.bottom - offset.top + 27),
+									left: (offset.left - 5)
 								}
 							},
 							this.settings.accounts.map(account=>React.createElement(AccountPanel, account))
@@ -283,6 +299,7 @@ module.exports = (() => {
 					this.requirePassword().then(r => {
 						const token = password == null ? account.token : this.decrypt(account.token, password);
 						AccountManager.loginToken(this.decrypt(token, account.id));
+						window.setTimeout(this.updateAvatars, 5000);
 						this.settings.pluginsToRestart.forEach(pl => {
 							if(BdApi.Plugins.isEnabled(pl)){
 								BdApi.Plugins.disable(pl);
