@@ -42,7 +42,7 @@ module.exports = (() => {
 					twitter_username: "l0c4lh057"
 				}
 			],
-			version: "1.3.1",
+			version: "1.3.2",
 			description: "Simply switch between accounts with the ease of pressing a single key.",
 			github: "https://github.com/l0c4lh057/AccountSwitcher",
 			github_raw: "https://raw.githubusercontent.com/l0c4lh057/AccountSwitcher/master/AccountSwitcher.plugin.js"
@@ -51,12 +51,19 @@ module.exports = (() => {
 			{
 				title: "Changed",
 				type: "progress",
-				items: ["Avatars of cached users should now get updated after plugin start and after switching accounts."]
+				items: ["Switched to a newer, even more secure encryption method."]
+			},
+			{
+				title: "Fixed",
+				type: "fixed",
+				items: ["Showing the keybinds in the settings again. (The toggle for encryption still does not work but that is added by ZeresPluginLibrary which I do not control.)"]
 			}
 		]
 	};
 	
 	let password = null;
+	const algorithm = "aes-256-cbc";
+	const IV_LENGTH = 16;
 	
 	return !global.ZeresPluginLibrary ? class {
 		constructor(){ this._config = config; }
@@ -85,8 +92,8 @@ module.exports = (() => {
 			const { React, ReactDOM, UserStore, UserInfoStore } = DiscordModules;
 			const AccountManager = WebpackModules.getByProps("loginToken");
 			const Markdown = WebpackModules.getByDisplayName("Markdown");
-			const unregisterKeybind = WebpackModules.getByProps('inputEventUnregister').inputEventUnregister.bind(WebpackModules.getByProps('inputEventUnregister'));
-			const registerKeybind = WebpackModules.getByProps('inputEventRegister').inputEventRegister.bind(WebpackModules.getByProps('inputEventUnregister'));
+			const unregisterKeybind = WebpackModules.getByProps("inputEventUnregister").inputEventUnregister.bind(WebpackModules.getByProps("inputEventUnregister"));
+			const registerKeybind = WebpackModules.getByProps("inputEventRegister").inputEventRegister.bind(WebpackModules.getByProps("inputEventUnregister"));
 			const crypto = require("crypto");
 			
 			if(!BdApi.Plugins.get("BugReportHelper") && !BdApi.getData(config.info.name, "didShowIssueHelperPopup")){
@@ -108,38 +115,34 @@ module.exports = (() => {
 				);
 			}
 			
-			const KeyRecorder = class KeyRecorder extends ZLibrary.WebpackModules.getByDisplayName('KeyRecorder') {
+			const KeyRecorder = class KeyRecorder extends WebpackModules.getByDisplayName("KeyRecorder") {
 				render() {
-					const ButtonOptions = ZLibrary.WebpackModules.getByProps('ButtonLink');
+					const ButtonOptions = WebpackModules.getByProps("ButtonLink");
 					const Button = ButtonOptions.default;
-					const GetClass = arg => {
-						const args = arg.split(' ');
-						return ZLibrary.WebpackModules.getByProps(...args)[args[args.length - 1]];
-					};
 					const ret = super.render();
-					ret.props.children.props.children.push(
-						ZLibrary.DiscordModules.React.createElement(
-							ZLibrary.DiscordModules.FlexChild,
+					ret.props.children.props.children.props.children.push(
+						React.createElement(
+							DiscordModules.FlexChild,
 							{
 								style: { margin: 0 } 
 							},
-							ZLibrary.DiscordModules.React.createElement(
+							React.createElement(
 								Button,
 								{
-									className: GetClass('editIcon button').split(' ')[1],
+									className: WebpackModules.getByProps("editIcon", "button").button.split(" ")[1],
 									size: Button.Sizes.MIN,
 									color: ButtonOptions.ButtonColors.GREY,
 									look: ButtonOptions.ButtonLooks.GHOST,
 									onClick: this.props.onRemove
 								},
-								'Remove'
+								"Remove"
 							)
 						)
 					);
 					return ret;
 				}
 			};
-			const KeybindModule = class KeybindModule extends ZLibrary.DiscordModules.Keybind {
+			const KeybindModule = class KeybindModule extends DiscordModules.Keybind {
 				constructor(props) {
 					super(props);
 				}
@@ -151,7 +154,7 @@ module.exports = (() => {
 					return ret;
 				}
 			};
-			const Keybind = class Keybind extends ZLibrary.Settings.SettingField {
+			const Keybind = class Keybind extends Settings.SettingField {
 				constructor(account, onChange, onRemove) {
 					super(account.name + " (" + account.id + ")", "", onChange, KeybindModule, {
 						defaultValue: (account.keybind[0] !== -1 && account.keybind.map(a => [0, a])) || [],
@@ -166,10 +169,6 @@ module.exports = (() => {
 				}
 			};
 			return class AccountSwitcher extends Plugin {
-				constructor(){
-					super();
-				}
-				
 				updateAvatars(){
 					this.settings.accounts.forEach(acc => {
 						const u = UserStore.getUser(acc.id);
@@ -180,6 +179,9 @@ module.exports = (() => {
 				onStart(){
 					password = null;
 					this.loadSettings();
+					if(this.settings.salt === undefined){
+						this.settings.salt = crypto.randomBytes(32).toString("base64");
+					}
 					this.settings.accounts.forEach(acc => this.registerKeybind(acc));
 					this.openMenu = this.openMenu.bind(this);
 					PluginUtilities.addStyle("accountswitcher-style", `
@@ -222,6 +224,24 @@ module.exports = (() => {
 					`);
 					document.addEventListener("mouseup", this.openMenu);
 					this.updateAvatars();
+					if(this.settings.encryptionVersion !== 2){
+						if(!this.settings.encrypted){
+							this.settings.accounts.forEach(acc => {
+								acc.token = this.encryptUpdated(this.decryptDeprecated(acc.token, acc.id), acc.id);
+							});
+							this.settings.encryptionVersion = 2;
+							this.saveSettings();
+						}else{
+							this.requirePassword("The encryption algorithm got updated for better security. Please enter your password to decrypt your tokens and encrypt them again with the new algorithm.").then(()=>{
+								this.settings.encTest = this.encryptUpdated("test", password);
+								this.settings.accounts.forEach(acc => {
+									acc.token = this.encryptUpdated(this.encryptUpdated(this.decryptDeprecated(this.decryptDeprecated(acc.token, password), acc.id), acc.id), password);
+								});
+								this.settings.encryptionVersion = 2;
+								this.saveSettings();
+							});
+						}
+					}
 				}
 				
 				onStop(){
@@ -235,7 +255,8 @@ module.exports = (() => {
 						accounts: [],
 						encrypted: false,
 						encTest: "test",
-						pluginsToRestart: ["AccountDetailsPlus", "AutoStartRichPresence"]
+						pluginsToRestart: ["AccountDetailsPlus", "AutoStartRichPresence"],
+						encryptionVersion: 1
 					}
 				}
 				
@@ -345,6 +366,7 @@ module.exports = (() => {
 						accountsField.append(kbPanel);
 					};
 					const addAccountButton = document.createElement("button");
+					// TODO: remove hardcoded classes
 					addAccountButton.className = "button-38aScr lookFilled-1Gx00P colorBrand-3pXr91 sizeMedium-1AC_Sl grow-q77ONN";
 					addAccountButton.addEventListener("click", ()=>{
 						if(this.settings.accounts.some(acc => acc.id == UserStore.getCurrentUser().id)){
@@ -450,17 +472,22 @@ module.exports = (() => {
 				
 				// This function does NOT return the password, it just ensures that the correct password is stored in the "password" variable.
 				// The password should never be exposed so there should be no way to access the password from outside this plugin.
-				async requirePassword(){
+				async requirePassword(message){
 					if(!this.settings.encrypted || password !== null) return Promise.resolve();
 					return new Promise((resolve, reject) => {
 						const retry = t=>{
 							let pw = "";
 							Modals.showModal("Password required", React.createElement(
-								"input",
-								{
-									type: "password",
-									onChange: e=>{pw = e.target.value;}
-								}
+								React.Fragment,
+								!message ? null : message,
+								!message ? null : React.createElement("br"),
+								React.createElement(
+									"input",
+									{
+										type: "password",
+										onChange: e=>{pw = e.target.value;}
+									}
+								)
 							), {
 								onConfirm: ()=>{
 									try{
@@ -481,13 +508,38 @@ module.exports = (() => {
 					});
 				}
 				
-				encrypt(text, pw){
+				encryptDeprecated(text, pw){
 					const key = crypto.createCipher("aes-128-cbc", pw);
 					return key.update(text, "utf8", "hex") + key.final("hex");
 				}
-				decrypt(text, pw){
+				decryptDeprecated(text, pw){
 					const key = crypto.createDecipher("aes-128-cbc", pw);
 					return key.update(text, "hex", "utf8") + key.final("utf8");
+				}
+				
+				generateEncryptionKey(pw){
+					return crypto.pbkdf2Sync(Buffer.from(pw, "utf8"), this.settings.salt, 100000, 32, "sha512");
+				}
+				encryptUpdated(text, pw){
+					const iv = crypto.randomBytes(IV_LENGTH);
+					const cipher = crypto.createCipheriv(algorithm, this.generateEncryptionKey(pw), iv);
+					const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
+					return iv.toString("base64") + ":" + encrypted.toString("base64");
+				}
+				decryptUpdated(text, pw){
+					const parts = text.split(":");
+					const iv = Buffer.from(parts.shift(), "base64");
+					const encrypted = Buffer.from(parts.join(":"), "base64");
+					const decipher = crypto.createDecipheriv(algorithm, this.generateEncryptionKey(pw), iv);
+					const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+					return decrypted.toString();
+				}
+				
+				encrypt(text, pw){
+					return this.settings.encryptionVersion === 2 ? this.encryptUpdated(text, pw) : this.encryptDeprecated(text, pw);
+				}
+				decrypt(text, pw){
+					return this.settings.encryptionVersion === 2 ? this.decryptUpdated(text, pw) : this.decryptDeprecated(text, pw);
 				}
 				
 				registerKeybind(account){
