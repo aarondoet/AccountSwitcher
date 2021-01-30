@@ -4,7 +4,7 @@
 * @source https://github.com/l0c4lh057/AccountSwitcher/blob/master/AccountSwitcher.plugin.js
 * @patreon https://www.patreon.com/l0c4lh057
 * @authorId 226677096091484160
-* @invite acQjXZD
+* @invite YzzeuJPpyj
 */
 /*@cc_on
 @if (@_jscript)
