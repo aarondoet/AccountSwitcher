@@ -64,6 +64,7 @@ module.exports = (() => {
 	let password = null;
 	const algorithm = "aes-256-cbc";
 	const IV_LENGTH = 16;
+	const Buffer = require("buffer").Buffer;
 	
 	return !global.ZeresPluginLibrary ? class {
 		constructor(){ this._config = config; }
