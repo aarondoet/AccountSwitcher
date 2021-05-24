@@ -486,6 +486,8 @@ module.exports = (() => {
 									"input",
 									{
 										type: "password",
+										ref: e=>{if(e)setTimeout(()=>{e.focus()},500)},
+										onKeyDown: e=>{if(e.keyCode===13)e.target.parentNode.nextSibling.children[0].click()},
 										onChange: e=>{pw = e.target.value;}
 									}
 								)
