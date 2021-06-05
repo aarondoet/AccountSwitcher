@@ -42,7 +42,7 @@ module.exports = (() => {
 					twitter_username: "l0c4lh057"
 				}
 			],
-			version: "1.3.2",
+			version: "1.3.3",
 			description: "Simply switch between accounts with the ease of pressing a single key.",
 			github: "https://github.com/l0c4lh057/AccountSwitcher",
 			github_raw: "https://raw.githubusercontent.com/l0c4lh057/AccountSwitcher/master/AccountSwitcher.plugin.js"
@@ -51,12 +51,12 @@ module.exports = (() => {
 			{
 				title: "Changed",
 				type: "progress",
-				items: ["Switched to a newer, even more secure encryption method."]
+				items: ["Added a logout button to settings to allow adding accounts when using 2FA. If anyone needs help using this plugin with 2FA accounts, please ask on my support server: https://discord.gg/YzzeuJPpyj"]
 			},
 			{
 				title: "Fixed",
 				type: "fixed",
-				items: ["Showing the keybinds in the settings again. (The toggle for encryption still does not work but that is added by ZeresPluginLibrary which I do not control.)"]
+				items: ["Avatars should load again. If you don't see the avatar of an account, switch to that account again and it should appear."]
 			}
 		]
 	};
@@ -173,7 +173,7 @@ module.exports = (() => {
 				updateAvatars(){
 					this.settings.accounts.forEach(acc => {
 						const u = UserStore.getUser(acc.id);
-						if(u) acc.avatar = u.avatarURL;
+						if(u) acc.avatar = u.getAvatarURL(null, true);
 					})
 				}
 				
@@ -343,7 +343,7 @@ module.exports = (() => {
 							let acc = {
 								name: u.tag,
 								id: u.id,
-								avatar: u.avatarURL,
+								avatar: u.getAvatarURL(null, true),
 								keybind: [64, 10+this.settings.accounts.length],
 								token: this.settings.encrypted ? this.encrypt(t, password) : t
 							};
@@ -378,6 +378,12 @@ module.exports = (() => {
 						})
 					});
 					addAccountButton.innerText = "Save Account";
+					const logoutButton = document.createElement("button");
+					logoutButton.className = addAccountButton.className;
+					logoutButton.addEventListener("click", ()=>{
+						AccountManager.loginToken("");
+					});
+					logoutButton.innerText = "Log out to add another account";
 					
 					new Settings.SettingGroup(this.getName(), {shown:true}).appendTo(panel)
 							.append(
@@ -466,7 +472,8 @@ module.exports = (() => {
 									this.settings.pluginsToRestart = val.split(",").map(x=>x.trim()).filter(x=>x);
 									this.saveSettings();
 								})
-							);
+							)
+							.append(logoutButton);
 					this.settings.accounts.forEach(acc => addAccount(acc));
 					return panel;
 				}
