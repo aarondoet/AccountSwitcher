@@ -467,7 +467,7 @@ module.exports = (() => {
 							console.log("Logging in as " + account.name);
 							this.requirePassword().then((r) => {
 								const token =
-									password == null
+									password === null
 										? account.token
 										: this.decrypt(account.token, password);
 								AccountManager.loginToken(this.decrypt(token, account.id));
