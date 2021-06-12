@@ -9,7 +9,7 @@ If you accidentally shared your token you can change your password or enable 2FA
 
 ## Usage
 ### Adding accounts
-Log in to the account you want to save. Then open the plugin settings and click the `Save Account` button. To save another account, log in to the other account and repeat this procedure.
+Log in to the account you want to save. Then open the plugin settings and click the `Save Account` button. To save another account, click the `Log out` button in the plugin settings and then log in to the other account and repeat this procedure.
 **If you change your password or you enable/disable 2FA your account gets a new token. The old one will no longer be working.**
 
 ### Switching accounts
