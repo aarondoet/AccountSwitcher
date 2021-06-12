@@ -18,4 +18,4 @@ To switch between account you only need to press the `AltLeft` key and a number 
 You can also middle click your avatar in the quick settings field at the bottom. A popup will appear with the accounts you have set in the settings (and their avatar, but for some people it doesn't seem to work). Just click the account you want to switch to and everything should work fine.
 
 ## Download
-[Click here to download](https://betterdiscord.net/ghdl/?url=https://github.com/l0c4lh057/AccountSwitcher/blob/master/AccountSwitcher.plugin.js)
+[Click here and then press Ctrl+S to download](https://raw.githubusercontent.com/l0c4lh057/AccountSwitcher/master/AccountSwitcher.plugin.js)
