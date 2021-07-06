@@ -100,7 +100,7 @@ module.exports = (() => {
 			if(!BdApi.Plugins.get("BugReportHelper") && !BdApi.getData(config.info.name, "didShowIssueHelperPopup")){
 				BdApi.saveData(config.info.name, "didShowIssueHelperPopup", true);
 				BdApi.showConfirmationModal("Do you want to download a helper plugin?", 
-					[`Do you want to download a helper plugin that makes it easier for you to report issues? That plugin is not needed to anything else to function correctly but nice to have when reporting iissues, shortening the time until the problem gets resolved by asking you for specific information and also including additional information you did not provide.`],
+					[`Do you want to download a helper plugin that makes it easier for you to report issues? That plugin is not needed to anything else to function correctly but nice to have when reporting issues, shortening the time until the problem gets resolved by asking you for specific information and also including additional information you did not provide.`],
 					{
 						confirmText: "Download",
 						cancelText: "Cancel",
