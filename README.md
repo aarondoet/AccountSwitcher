@@ -9,7 +9,7 @@ If you accidentally shared your token you can change your password or enable 2FA
 
 ## Usage
 ### Adding accounts
-Log in to the account you want to save. Then open the plugin settings and click the `Save Account` button. To save another account, log in to the other account and repeat this procedure.
+Log in to the account you want to save. Then open the plugin settings and click the `Save Account` button. To save another account, click the `Log out` button in the plugin settings and then log in to the other account and repeat this procedure.
 **If you change your password or you enable/disable 2FA your account gets a new token. The old one will no longer be working.**
 
 ### Switching accounts
@@ -18,4 +18,4 @@ To switch between account you only need to press the `AltLeft` key and a number 
 You can also middle click your avatar in the quick settings field at the bottom. A popup will appear with the accounts you have set in the settings (and their avatar, but for some people it doesn't seem to work). Just click the account you want to switch to and everything should work fine.
 
 ## Download
-[Click here to download](https://betterdiscord.net/ghdl/?url=https://github.com/l0c4lh057/AccountSwitcher/blob/master/AccountSwitcher.plugin.js)
+[Click here and then press Ctrl+S to download](https://raw.githubusercontent.com/l0c4lh057/AccountSwitcher/master/AccountSwitcher.plugin.js)
