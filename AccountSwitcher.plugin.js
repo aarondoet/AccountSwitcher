@@ -576,3 +576,4 @@ module.exports = (() => {
 		return plugin(Plugin, Api);
 	})(global.ZeresPluginLibrary.buildPlugin(config));
 })();
+/*@end*/
