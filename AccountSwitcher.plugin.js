@@ -173,7 +173,7 @@ module.exports = (() => {
 				updateAvatars(){
 					this.settings.accounts.forEach(acc => {
 						const u = UserStore.getUser(acc.id);
-						if(u) acc.avatar = u.getAvatarURL(null, true);
+						if(u) acc.avatar = u.getAvatarURL(null, 128, true);
 					})
 				}
 				
@@ -343,7 +343,7 @@ module.exports = (() => {
 							let acc = {
 								name: u.tag,
 								id: u.id,
-								avatar: u.getAvatarURL(null, true),
+								avatar: u.getAvatarURL(null, 128, true),
 								keybind: [64, 10+this.settings.accounts.length],
 								token: this.settings.encrypted ? this.encrypt(t, password) : t
 							};
