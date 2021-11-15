@@ -42,21 +42,21 @@ module.exports = (() => {
 					twitter_username: "l0c4lh057"
 				}
 			],
-			version: "1.3.3",
+			version: "1.3.4",
 			description: "Simply switch between accounts with the ease of pressing a single key.",
 			github: "https://github.com/l0c4lh057/AccountSwitcher",
 			github_raw: "https://raw.githubusercontent.com/l0c4lh057/AccountSwitcher/master/AccountSwitcher.plugin.js"
 		},
 		changelog: [
 			{
-				title: "Changed",
-				type: "progress",
-				items: ["Added a logout button to settings to allow adding accounts when using 2FA. If anyone needs help using this plugin with 2FA accounts, please ask on my support server: https://discord.gg/YzzeuJPpyj"]
-			},
-			{
 				title: "Fixed",
 				type: "fixed",
-				items: ["Avatars should load again. If you don't see the avatar of an account, switch to that account again and it should appear."]
+				items: ["Disabling encryption doesn't crash discord anymore."]
+			},
+			{
+				title: "New",
+				type: "added",
+				items: ["Now Alt+Click opens the switch menu too, not only MB2 click."]
 			}
 		]
 	};
@@ -92,7 +92,6 @@ module.exports = (() => {
 			const { WebpackModules, PluginUtilities, DiscordModules, Settings, Toasts, Modals, DOMTools } = Api;
 			const { React, ReactDOM, UserStore, UserInfoStore } = DiscordModules;
 			const AccountManager = WebpackModules.getByProps("loginToken");
-			const Markdown = WebpackModules.getByDisplayName("Markdown");
 			const unregisterKeybind = WebpackModules.getByProps("inputEventUnregister").inputEventUnregister.bind(WebpackModules.getByProps("inputEventUnregister"));
 			const registerKeybind = WebpackModules.getByProps("inputEventRegister").inputEventRegister.bind(WebpackModules.getByProps("inputEventUnregister"));
 			const crypto = require("crypto");
@@ -224,6 +223,7 @@ module.exports = (() => {
 						}
 					`);
 					document.addEventListener("mouseup", this.openMenu);
+					document.addEventListener("click", this.openMenu, {capture: true});
 					this.updateAvatars();
 					if(this.settings.encryptionVersion !== 2){
 						if(!this.settings.encrypted){
@@ -248,6 +248,7 @@ module.exports = (() => {
 				onStop(){
 					this.settings.accounts.forEach(acc => this.unregisterKeybind(acc));
 					document.removeEventListener("mouseup", this.openMenu);
+					document.removeEventListener("click", this.openMenu, {capture: true});
 					PluginUtilities.removeStyle("accountswitcher-style");
 				}
 				
@@ -262,10 +263,11 @@ module.exports = (() => {
 				}
 				
 				openMenu(e){
-					if(e.which != 2) return;
+					if(!(e.type === "mouseup" && e.which === 2) && !(e.type === "click" && e.which === 1 && e.altKey)) return;
 					if(!e.target || !e.target.classList) return;
 					if(!e.target.classList.contains(WebpackModules.getByProps("avatar", "container", "nameTag").avatar.split(" ")[0])) return;
 					e.preventDefault();
+					e.stopPropagation();
 					const menu = document.createElement("div");
 					const AccountPanel = account=>React.createElement(
 						"div",
@@ -423,7 +425,7 @@ module.exports = (() => {
 										const retry = ()=>{
 											let pw = "";
 											Modals.showModal("Disable encryption", React.createElement("div", {},
-												React.createElement(Markdown, {}, "Are you sure that you want to disable encryption? To verify please input your current password. You can also choose the 'Forgot Password' option which will remove all saved accounts. To abort just click outside of this popout."),
+												React.createElement("div", {className: "colorStandard-2KCXvj"}, "Are you sure that you want to disable encryption? To verify please input your current password. You can also choose the 'Forgot Password' option which will remove all saved accounts. To abort just click outside of this popout."),
 												React.createElement("input", {
 													type: "password",
 													placeholder: "Password",
@@ -493,7 +495,7 @@ module.exports = (() => {
 									"input",
 									{
 										type: "password",
-										ref: e=>{if(e)setTimeout(()=>{e.focus()},500)},
+										ref: e=>{if(e)setTimeout(()=>e.focus(),500)},
 										onKeyDown: e=>{if(e.keyCode===13)e.target.parentNode.nextSibling.children[0].click()},
 										onChange: e=>{pw = e.target.value;}
 									}
