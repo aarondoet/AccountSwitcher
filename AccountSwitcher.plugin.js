@@ -42,7 +42,7 @@ module.exports = (() => {
 					twitter_username: "l0c4lh057"
 				}
 			],
-			version: "1.3.4",
+			version: "1.3.5",
 			description: "Simply switch between accounts with the ease of pressing a single key.",
 			github: "https://github.com/l0c4lh057/AccountSwitcher",
 			github_raw: "https://raw.githubusercontent.com/l0c4lh057/AccountSwitcher/master/AccountSwitcher.plugin.js"
