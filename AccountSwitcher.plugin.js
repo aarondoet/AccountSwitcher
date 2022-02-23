@@ -6,7 +6,7 @@
 * @authorId 226677096091484160
 * @invite YzzeuJPpyj
 */
-/*@cc_on
+/**
 @if (@_jscript)
 	
 	// Offer to self-install for clueless users that try to run this directly.
@@ -28,7 +28,7 @@
 	}
 	WScript.Quit();
 
-@else@*/
+*/
 
 module.exports = (() => {
 	const config = {
